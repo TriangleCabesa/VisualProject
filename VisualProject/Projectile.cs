@@ -30,6 +30,7 @@ namespace VisualProject
             LifeSpan = lifeSpan;
         }
 
+        /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
             List<Polygon> list = new List<Polygon>();      
@@ -45,7 +46,8 @@ namespace VisualProject
             return list;
         }
 
-        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects, PaintEventArgs paintEventArgs)
+        /// <inheritdoc/>
+        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects)
         {
             double moveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds;
             X += Direction.X * moveDistance;

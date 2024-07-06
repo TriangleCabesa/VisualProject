@@ -35,7 +35,7 @@ namespace VisualProject
                 Objects.Add(new Enemy(Player, LastEventArgs.ClipRectangle));
             }
 
-            Objects.RemoveAll(gameObject => !gameObject.Update(pressedTimers, Objects, LastEventArgs));
+            Objects.RemoveAll(gameObject => !gameObject.Update(pressedTimers, Objects));
         }
 
         public void Paint(PaintEventArgs e, bool paintChange)

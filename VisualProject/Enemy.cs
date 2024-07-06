@@ -39,15 +39,16 @@ namespace VisualProject
             Direction.Y = yDiff / hypotenuse;
         }
 
+        /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
             List<Polygon> list = [];
             Polygon polygon = new();
 
             polygon.Points.Add(new Point((int)X, (int)Y));
-            polygon.Points.Add(new Point((int)(X + 10), (int)Y));
-            polygon.Points.Add(new Point((int)(X + 10), (int)(Y + 10)));
-            polygon.Points.Add(new Point((int)X, (int)(Y + 10)));
+            polygon.Points.Add(new Point((int)(X + 50), (int)Y));
+            polygon.Points.Add(new Point((int)(X + 50), (int)(Y + 50)));
+            polygon.Points.Add(new Point((int)X, (int)(Y + 50)));
             polygon.Brush = Brushes.DarkRed;
 
             list.Add(polygon);
@@ -55,7 +56,8 @@ namespace VisualProject
             return list;
         }
 
-        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects, PaintEventArgs paintEventArgs)
+        /// <inheritdoc/>
+        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects)
         {
             double xDiff = Player.X - X;
             double yDiff = Player.Y - Y;

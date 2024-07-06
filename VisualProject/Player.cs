@@ -29,6 +29,7 @@ namespace VisualProject
             }
         }
 
+        /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
             if (Size < 0)
@@ -67,7 +68,8 @@ namespace VisualProject
             return result;
         }
 
-        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects, PaintEventArgs paintEventArgs)
+        /// <inheritdoc/>
+        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects)
         {
             int lastX = X;
             int lastY = Y;
