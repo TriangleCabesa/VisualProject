@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace VisualProject
 {
-    public class Projectile : IGameObject
+    public class Projectile : IGameObject, ICollidable
     {
         private double X;
         private double Y;
         private (double X, double Y) Direction = (0, 0);
         private Stopwatch stopwatch = Stopwatch.StartNew();
         private TimeSpan LifeSpan;
+        private Rectangle CollisionBox { get; set; } = new();
 
         public Projectile(int x, int y, (int X, int Y) destination, TimeSpan lifeSpan)
         {
@@ -43,6 +44,9 @@ namespace VisualProject
             polygon.Points.Add(new Point((int)X, (int)Y + 10));
 
             list.Add(polygon);
+
+            CollisionBox = polygon.ToRectangle();
+
             return list;
         }
 
@@ -54,6 +58,14 @@ namespace VisualProject
             Y += Direction.Y * moveDistance;
 
             return stopwatch.Elapsed < LifeSpan;
+        }
+
+        public bool CollidesWith(Rectangle rectangle)
+        {
+            if (rectangle == CollisionBox)
+                return false;
+
+            return CollisionBox.IntersectsWith(rectangle);
         }
     }
 }

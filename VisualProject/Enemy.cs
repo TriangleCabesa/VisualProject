@@ -1,12 +1,13 @@
 namespace VisualProject
 {
-    public class Enemy : IGameObject
+    public class Enemy : IGameObject, ICollidable
     {
         private double X { get; set; }
         private double Y { get; set; }
         private (double X, double Y) Direction = (0, 0);
         private Player Player { get; set; }
         double MoveDistance { get; set; } = 0;
+        private Rectangle CollisionBox { get; set; } = new Rectangle();
 
         public Enemy(Player player, Rectangle spawnWindow)
         {
@@ -53,12 +54,25 @@ namespace VisualProject
 
             list.Add(polygon);
 
+            CollisionBox = polygon.ToRectangle();
+
             return list;
         }
 
         /// <inheritdoc/>
         public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects)
         {
+            foreach (var gameObject in gameObjects.Where(x => x is ICollidable))
+            {
+                ICollidable? collidable = gameObject as ICollidable;
+
+                if (collidable is null || collidable is Enemy)
+                    continue;
+                
+                if (collidable.CollidesWith(CollisionBox))
+                    return false;
+            }
+
             double xDiff = Player.X - X;
             double yDiff = Player.Y - Y;
 
@@ -73,6 +87,14 @@ namespace VisualProject
             Y += MoveDistance * Direction.Y;
 
             return Math.Abs(hypotenuse) >= 50;
+        }
+
+        public bool CollidesWith(Rectangle rectangle)
+        {
+            if (rectangle == CollisionBox)
+                return false;
+
+            return CollisionBox.IntersectsWith(rectangle);
         }
     }
 }
