@@ -45,10 +45,11 @@ namespace VisualProject
             return list;
         }
 
-        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers)
+        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects, PaintEventArgs paintEventArgs)
         {
-            X += Direction.X * pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds;
-            Y += Direction.Y * pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds;
+            double moveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds;
+            X += Direction.X * moveDistance;
+            Y += Direction.Y * moveDistance;
 
             return stopwatch.Elapsed < LifeSpan;
         }

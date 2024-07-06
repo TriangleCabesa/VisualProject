@@ -5,6 +5,7 @@ namespace VisualProject
 {
     public partial class Window : Form
     {
+        int frameRate = 120;
         bool canPaint = true;
         bool windowOpen = true;
         PanelPainter? painter;
@@ -23,7 +24,7 @@ namespace VisualProject
                 {
                     Stopwatch stopwatch = Stopwatch.StartNew();
 
-                    while (stopwatch.Elapsed < TimeSpan.FromMilliseconds(10))
+                    while (stopwatch.Elapsed < TimeSpan.FromMilliseconds(1000 / frameRate))
                         ;
 
                     canPaint = true;
@@ -68,6 +69,11 @@ namespace VisualProject
 
             pressedTimers.Add((Keys.F20, Stopwatch.Elapsed));
             Stopwatch.Restart();
+
+            foreach (var (key, timeSpan) in pressedTimers.Where(x => x.key == Keys.Left || x.key == Keys.Right))
+            {
+                frameRate += key == Keys.Right ? 1 : frameRate > 1 ? -1 : 0;
+            }
 
             painter.Update(pressedTimers);
             pressedTimers.Clear();
@@ -149,8 +155,8 @@ namespace VisualProject
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             painter ??= new PanelPainter();
-            painter.mouseX = e.X;
-            painter.mouseY = e.Y;
+            painter.MouseX = e.X;
+            painter.MouseY = e.Y;
         }
     }
 }

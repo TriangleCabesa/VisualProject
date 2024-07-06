@@ -9,40 +9,69 @@ namespace VisualProject
         public int X { get; set; }
         public int Y { get; set; }
         public int Size { get; set; } = 100;
+        public int Rotation { get; set; } = 0;
+        public int ShotsPerSecond = 3;
+
+        private bool canFire = true;
+        public bool CanFire 
+        {
+            get { return canFire; }
+            set
+            {
+                canFire = value;
+
+                if (!value)
+                    Task.Run(() => 
+                    {
+                        Thread.Sleep(TimeSpan.FromMilliseconds(1000 / ShotsPerSecond));
+                        canFire = true;
+                    });
+            }
+        }
 
         public List<Polygon> GetObjectSprite()
         {
             if (Size < 0)
                 Size = 0;
 
-            double sizePercent = .2;
-
             List<Polygon> result = [];
             
-            foreach (var (brush, rectangleLoop) in new Rectangle(X, Y, Size, Size).AsHollowedSquare(Brushes.Red, sizePercent))
-            {
-                Polygon polygonLoop = new();
-                polygonLoop.Points.Add(new Point(rectangleLoop.X, rectangleLoop.Y));
-                polygonLoop.Points.Add(new Point(rectangleLoop.X + rectangleLoop.Width, rectangleLoop.Y));
-                polygonLoop.Points.Add(new Point(rectangleLoop.X + rectangleLoop.Width, rectangleLoop.Y + rectangleLoop.Height));
-                polygonLoop.Points.Add(new Point(rectangleLoop.X, rectangleLoop.Y + rectangleLoop.Height));
-                polygonLoop.Brush = brush;
-                result.Add(polygonLoop);
-            }
-
-            Rectangle rectangle = new(X + Size / 3, Y + Size, Size / 3 + 1, Size * 3 + 1);
+            double rotation = Rotation * (Math.PI / 180);
+            Point startPoint = new(X,Y);
             Polygon polygon = new();
-            polygon.Points.Add(new Point(rectangle.X, rectangle.Y));
-            polygon.Points.Add(new Point(rectangle.X + rectangle.Width, rectangle.Y));
-            polygon.Points.Add(new Point(rectangle.X + rectangle.Width, rectangle.Y + rectangle.Height));
-            polygon.Points.Add(new Point(rectangle.X, rectangle.Y + rectangle.Height));
-            polygon.Brush = Brushes.Black;
+            polygon.Points.Add(new Point(X, Y - Size / 2));
+            polygon.Points.Add(new Point(X - Size, Y + Size / 3));
+            polygon.Points.Add(new Point(polygon.Points.Last().X, polygon.Points.Last().Y + Size / 5));
+            polygon.Points.Add(new Point(polygon.Points.Last().X + Size / 5, polygon.Points.Last().Y));
+            polygon.Points.Add(new Point(polygon.Points.Last().X, polygon.Points.Last().Y - Size / 5));
+            polygon.Points.Add(new Point(X + Size - Size / 5, Y + Size / 3));
+            polygon.Points.Add(new Point(polygon.Points.Last().X, polygon.Points.Last().Y + Size / 5));
+            polygon.Points.Add(new Point(polygon.Points.Last().X + Size / 5, polygon.Points.Last().Y));
+            polygon.Points.Add(new Point (X + Size, Y + Size / 3));
+
+            polygon.Brush = Brushes.Gray;
+            
             result.Add(polygon);
+
+            polygon = new();
+            polygon.Points.Add(new Point(X, Y - Size / 3));
+            polygon.Points.Add(new Point(X + Size / 3, Y));
+            polygon.Points.Add(new Point(X - Size / 3, Y));
+            polygon.Brush = Brushes.Cyan;
+            result.Add(polygon);
+
+            for (int i = 0; i < result.Count; i++)
+                for (int j = 0; j < result[i].Points.Count; j++)
+                    result[i].Points[j] = result[i].Points[j].Rotate(startPoint, rotation);
+                
             return result;
         }
 
-        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers)
+        public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects, PaintEventArgs paintEventArgs)
         {
+            int lastX = X;
+            int lastY = Y;
+
             foreach (var (key, timer) in pressedTimers)
             {
                 if (key == Keys.W)
@@ -72,6 +101,14 @@ namespace VisualProject
                     X += (int)timer.TotalMilliseconds / 2;
                     Y += (int)timer.TotalMilliseconds / 2;
                 }
+            }
+
+            if (lastX != X || lastY != Y)
+            {
+                var deltaX = lastX - X;
+                var deltaY = lastY - Y; // Y is inverted because coordinates are backwards in programming
+
+                Rotation = (int)(Math.Atan2(deltaX, deltaY) * (-180 / Math.PI));
             }
 
             return true;
