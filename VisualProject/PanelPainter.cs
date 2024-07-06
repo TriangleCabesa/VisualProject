@@ -30,9 +30,12 @@ namespace VisualProject
                 Player.CanFire = false;
             }
 
-            if (pressedTimers.Any(x => x.key == Keys.P))// && !Objects.Any(x => x.GetType() == typeof(Enemy)))
+            if (Objects.Count(obj => obj is Enemy) == 0)
             {
-                Objects.Add(new Enemy(Player, LastEventArgs.ClipRectangle));
+                int max = new Random().Next(10,20);
+
+                for (int i = 0; i < max; i++)
+                    Objects.Add(new Enemy(Player, LastEventArgs.ClipRectangle));
             }
 
             Objects.RemoveAll(gameObject => !gameObject.Update(pressedTimers, Objects));
