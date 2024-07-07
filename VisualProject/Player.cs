@@ -129,6 +129,10 @@ namespace VisualProject
                 {
                     if (polygonOne.PolygonsIntersect(polygonTwo))
                         return true;
+                    
+                    if (polygonOne.Points.Any(polygonTwo.IsPointInPolygon)
+                     || polygonTwo.Points.Any(polygonOne.IsPointInPolygon))
+                        return true;
                 }
             }
 

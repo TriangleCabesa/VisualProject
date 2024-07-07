@@ -79,5 +79,37 @@ namespace VisualProject
 
             return onLineOneX && onLineOneY && onLineTwoX && onLineTwoY;
         }
+
+        /// <summary>
+        /// Determines if the given point is inside the polygon
+        /// </summary>
+        /// <param name="points">the vertices of polygon</param>
+        /// <param name="testPoint">the given point</param>
+        /// <returns>true if the point is inside the polygon; otherwise, false</returns>
+        public static bool IsPointInPolygon(this Polygon polygon, Point testPoint)
+        {
+            Point[] points = [.. polygon.Points];
+
+            bool result = false;
+            int j = points.Length - 1;
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                if (points[i].Y < testPoint.Y && points[j].Y >= testPoint.Y
+                 || points[j].Y < testPoint.Y && points[i].Y >= testPoint.Y)
+                {
+                    bool rayIntersectsPolygon = points[i].X + (testPoint.Y - points[i].Y) /
+                        (points[j].Y - points[i].Y) *
+                        (points[j].X - points[i].X) < testPoint.X;
+
+                    if (rayIntersectsPolygon)
+                        result = !result;
+                }
+                
+                j = i;
+            }
+
+            return result;
+        }
     }
 }
