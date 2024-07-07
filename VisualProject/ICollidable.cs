@@ -2,6 +2,6 @@ namespace VisualProject
 {
     public interface ICollidable
     {
-        bool CollidesWith(Rectangle rectangle);
+        bool CollidesWith(List<Polygon> polygons);
     }
 }

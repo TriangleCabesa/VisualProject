@@ -26,11 +26,11 @@ namespace VisualProject
         {
             if (pressedTimers.Any(x => x.key == Keys.Space) && Player.CanFire)
             {
-                Objects.Add(new Projectile(Player.X, Player.Y, (MouseX, MouseY), TimeSpan.FromSeconds(1)));
+                Objects.Add(new Projectile(Player.X, Player.Y, (MouseX, MouseY), TimeSpan.FromSeconds(10)));
                 Player.CanFire = false;
             }
 
-            if (Objects.Count(obj => obj is Enemy) == 0)
+            if (!Objects.Any(obj => obj is Enemy))
             {
                 int max = new Random().Next(10,20);
 

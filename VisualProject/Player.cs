@@ -4,13 +4,14 @@ using System.Reflection;
 
 namespace VisualProject
 {
-    public class Player : IGameObject
+    public class Player : IGameObject, ICollidable
     {
         public int X { get; set; }
         public int Y { get; set; }
         public int Size { get; set; } = 100;
         public int Rotation { get; set; } = 0;
-        public int ShotsPerSecond = 3;
+        public int ShotsPerSecond = 10;
+        private List<Polygon> CollisionBox { get; set; } = [];
 
         private bool canFire = true;
         public bool CanFire 
@@ -64,6 +65,8 @@ namespace VisualProject
             for (int i = 0; i < result.Count; i++)
                 for (int j = 0; j < result[i].Points.Count; j++)
                     result[i].Points[j] = result[i].Points[j].Rotate(startPoint, rotation);
+
+            CollisionBox = result;
                 
             return result;
         }
@@ -114,6 +117,22 @@ namespace VisualProject
             }
 
             return true;
+        }
+
+        public bool CollidesWith(List<Polygon> polygons)
+        {
+            ArgumentNullException.ThrowIfNull(polygons);
+
+            foreach (var polygonOne in CollisionBox)
+            {
+                foreach (var polygonTwo in polygons)
+                {
+                    if (polygonOne.PolygonsIntersect(polygonTwo))
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }

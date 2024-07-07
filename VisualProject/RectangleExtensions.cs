@@ -32,5 +32,52 @@ namespace VisualProject
             return new Point((int)(centerPoint.X + (point.X - centerPoint.X) * Math.Cos(angle) - (point.Y - centerPoint.Y) * Math.Sin(angle)),
                              (int)(centerPoint.Y + (point.X - centerPoint.X) * Math.Sin(angle) + (point.Y - centerPoint.Y) * Math.Cos(angle)));
         }
+
+        public static bool PolygonsIntersect(this Polygon polygonOne, Polygon polygonTwo)
+        {
+            for (int i = 0; i < polygonOne.Points.Count; i++)
+            {
+                int POSPI = i + 1 == polygonOne.Points.Count ? 0 : i + 1; //POSPI - Polygon One, Second Point Index
+
+                for (int j = 0; j < polygonTwo.Points.Count; j++)
+                {
+                    int PTSPI = j + 1 == polygonTwo.Points.Count ? 0 : j + 1; //PTSPI - Polygon Two, Second Point Index
+
+                    if (LinesIntersect((polygonOne.Points[i], polygonOne.Points[POSPI]), (polygonTwo.Points[j], polygonTwo.Points[PTSPI])))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool LinesIntersect((Point a, Point b) lineOne, (Point a, Point b) lineTwo)
+        {
+            // Variable names copied from linear algebra notation.
+            double A1 = lineOne.b.Y - lineOne.a.Y;
+            double B1 = lineOne.a.X - lineOne.b.X;
+            double C1 = A1 * lineOne.a.X + B1 * lineOne.a.Y;
+            double A2 = lineTwo.b.Y - lineTwo.a.Y;
+            double B2 = lineTwo.a.X - lineTwo.b.X;
+            double C2 = A2 * lineTwo.a.X + B2 * lineTwo.a.Y;
+            double delta = A1 * B2 - A2 * B1;
+
+            if (delta == 0)
+                return false;
+
+            double xIntercept = (B2 * C1 - B1 * C2) / delta;
+            double yIntercept = (A1 * C2 - A2 * C1) / delta;
+
+            bool onLineOneX = Math.Max(lineOne.a.X, lineOne.b.X) >= xIntercept
+                           && Math.Min(lineOne.a.X, lineOne.b.X) <= xIntercept;
+            bool onLineOneY = Math.Max(lineOne.a.Y, lineOne.b.Y) >= yIntercept
+                           && Math.Min(lineOne.a.Y, lineOne.b.Y) <= yIntercept;
+            bool onLineTwoX = Math.Max(lineTwo.a.X, lineTwo.b.X) >= xIntercept
+                           && Math.Min(lineTwo.a.X, lineTwo.b.X) <= xIntercept;
+            bool onLineTwoY = Math.Max(lineTwo.a.Y, lineTwo.b.Y) >= yIntercept
+                           && Math.Min(lineTwo.a.Y, lineTwo.b.Y) <= yIntercept;
+
+            return onLineOneX && onLineOneY && onLineTwoX && onLineTwoY;
+        }
     }
 }

@@ -7,7 +7,7 @@ namespace VisualProject
         private (double X, double Y) Direction = (0, 0);
         private Player Player { get; set; }
         double MoveDistance { get; set; } = 0;
-        private Rectangle CollisionBox { get; set; } = new Rectangle();
+        private List<Polygon> CollisionBox { get; set; } = [];
 
         public Enemy(Player player, Rectangle spawnWindow)
         {
@@ -54,7 +54,7 @@ namespace VisualProject
 
             list.Add(polygon);
 
-            CollisionBox = polygon.ToRectangle();
+            CollisionBox = list;
 
             return list;
         }
@@ -86,15 +86,23 @@ namespace VisualProject
             X += MoveDistance * Direction.X;
             Y += MoveDistance * Direction.Y;
 
-            return Math.Abs(hypotenuse) >= 50;
+            return Math.Abs(hypotenuse) >= 1;
         }
 
-        public bool CollidesWith(Rectangle rectangle)
+        public bool CollidesWith(List<Polygon> polygons)
         {
-            if (rectangle == CollisionBox)
-                return false;
+            ArgumentNullException.ThrowIfNull(polygons);
 
-            return CollisionBox.IntersectsWith(rectangle);
+            foreach (var polygonOne in CollisionBox)
+            {
+                foreach (var polygonTwo in polygons)
+                {
+                    if (polygonOne.PolygonsIntersect(polygonTwo))
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }

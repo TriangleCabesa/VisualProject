@@ -14,7 +14,7 @@ namespace VisualProject
         private (double X, double Y) Direction = (0, 0);
         private Stopwatch stopwatch = Stopwatch.StartNew();
         private TimeSpan LifeSpan;
-        private Rectangle CollisionBox { get; set; } = new();
+        private List<Polygon> CollisionBox { get; set; } = [];
 
         public Projectile(int x, int y, (int X, int Y) destination, TimeSpan lifeSpan)
         {
@@ -38,14 +38,15 @@ namespace VisualProject
 
             Polygon polygon = new Polygon();
 
+            int bulletSize = 10;
             polygon.Points.Add(new Point((int)X,(int)Y));
-            polygon.Points.Add(new Point((int)X + 10, (int)Y));
-            polygon.Points.Add(new Point((int)X + 10, (int)Y + 10));
-            polygon.Points.Add(new Point((int)X, (int)Y + 10));
+            polygon.Points.Add(new Point((int)X + bulletSize, (int)Y));
+            polygon.Points.Add(new Point((int)X + bulletSize, (int)Y + bulletSize));
+            polygon.Points.Add(new Point((int)X, (int)Y + bulletSize));
 
             list.Add(polygon);
 
-            CollisionBox = polygon.ToRectangle();
+            CollisionBox = list;
 
             return list;
         }
@@ -60,12 +61,20 @@ namespace VisualProject
             return stopwatch.Elapsed < LifeSpan;
         }
 
-        public bool CollidesWith(Rectangle rectangle)
+        public bool CollidesWith(List<Polygon> polygons)
         {
-            if (rectangle == CollisionBox)
-                return false;
+            ArgumentNullException.ThrowIfNull(polygons);
 
-            return CollisionBox.IntersectsWith(rectangle);
+            foreach (var polygonOne in CollisionBox)
+            {
+                foreach (var polygonTwo in polygons)
+                {
+                    if (polygonOne.PolygonsIntersect(polygonTwo))
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -3,7 +3,9 @@
     public interface IGameObject
     {
         /// <summary>
-        /// Gets the polygons required to draw the sprite using Graphics2D
+        /// Gets the polygons required to draw the sprite using Graphics2D.
+        /// IMPORTANT: Collision Detector only uses the first polygon in the list. Any other polygon in the returned
+        /// should be included for decorative purposes only.
         /// </summary>
         /// <returns>A list of <see cref="Polygon"/>s.</returns>
         List<Polygon> GetObjectSprite();
