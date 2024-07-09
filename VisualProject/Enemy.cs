@@ -3,19 +3,17 @@ namespace VisualProject
     public class Enemy : IGameObject, ICollidable
     {
         private (double X, double Y) _location;
-        private (double X, double Y) _direction = (0, 0);
-        private Player _player;
-        private double _moveDistance = 0;
-        private List<Polygon> _collisionBox = [];
+        private (double X, double Y) _direction;
+        private readonly Player _player;
+        private double _moveDistance;
+        private List<Polygon> _collisionBox;
 
         public Enemy(Player player, Rectangle spawnWindow)
         {
-            if (spawnWindow.Width < 800 || spawnWindow.Height < 450)
-                spawnWindow = new Rectangle(0, 0, 800, 450);
-
             _player = player;
             _location = GetSafeSpawnPoint(spawnWindow);
             _direction = GetUpdatedDirection();
+            _collisionBox = GetObjectSprite();
         }
 
         /// <inheritdoc/>
@@ -57,26 +55,8 @@ namespace VisualProject
             return true;
         }
 
-        /// <inheritdoc/>
-        public bool CollidesWith(List<Polygon> polygons)
-        {
-            ArgumentNullException.ThrowIfNull(polygons);
-
-            foreach (var polygonOne in _collisionBox)
-            {
-                foreach (var polygonTwo in polygons)
-                {
-                    if (polygonOne.PolygonsIntersect(polygonTwo))
-                        return true;
-                    
-                    if (polygonOne.Points.Any(polygonTwo.IsPointInPolygon)
-                     || polygonTwo.Points.Any(polygonOne.IsPointInPolygon))
-                        return true;
-                }
-            }
-
-            return false;
-        }
+        public bool CollidesWith(List<Polygon> polygons) =>
+            CollisionDetector.CollidesWith(_collisionBox, polygons);
 
         private double GetMinimumSpawnDistance(Rectangle spawnWindow)
         {

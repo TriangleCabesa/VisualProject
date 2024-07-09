@@ -5,10 +5,10 @@ namespace VisualProject
     public class Projectile : IGameObject, ICollidable
     {
         // We can't use point because doubles are needed for higher accuracy.
-        private (double X, double Y) _location = (0, 0);
-        private (double X, double Y) _direction = (0, 0);
-        private List<Polygon> _collisionBox = [];
+        private (double X, double Y) _location;
+        private (double X, double Y) _direction;
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private List<Polygon> _collisionBox = [];
         private readonly TimeSpan _lifeSpan;
 
         /// <summary>
@@ -60,25 +60,7 @@ namespace VisualProject
             return _stopwatch.Elapsed < _lifeSpan;
         }
 
-        /// <inheritdoc/>
-        public bool CollidesWith(List<Polygon> polygons)
-        {
-            ArgumentNullException.ThrowIfNull(polygons);
-
-            foreach (var polygonOne in _collisionBox)
-            {
-                foreach (var polygonTwo in polygons)
-                {
-                    if (polygonOne.PolygonsIntersect(polygonTwo))
-                        return true;
-                    
-                    if (polygonOne.Points.Any(polygonTwo.IsPointInPolygon)
-                     || polygonTwo.Points.Any(polygonOne.IsPointInPolygon))
-                        return true;
-                }
-            }
-
-            return false;
-        }
+        public bool CollidesWith(List<Polygon> polygons) =>
+            CollisionDetector.CollidesWith(_collisionBox, polygons);
     }
 }

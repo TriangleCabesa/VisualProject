@@ -15,15 +15,22 @@ namespace VisualProject
             int Y = rectangle.Y;
             double Size = rectangle.Size.Width;
 
-            return new()
-            {
+            return
+            [
                 (brush, new Rectangle(X, Y, (int)(Size * filledPercentage), (int)Size)),
                 (brush, new Rectangle(X, Y, (int)Size, (int)(Size * filledPercentage))),
                 (brush, new Rectangle(X + (int)Size - (int)(Size * filledPercentage), Y, (int)(Size * filledPercentage), (int)Size)),
                 (brush, new Rectangle(X, Y + (int)Size - (int)(Size * filledPercentage), (int)Size, (int)(Size * filledPercentage))),
-            };
+            ];
         }
 
+        /// <summary>
+        /// Rotates this point around the centerpoint, by the given angle.
+        /// </summary>
+        /// <param name="point"></param>
+        /// <param name="centerPoint"></param>
+        /// <param name="angle"></param>
+        /// <returns></returns>
         public static Point Rotate(this Point point, Point centerPoint, double angle)
         {
             if (angle == 0)

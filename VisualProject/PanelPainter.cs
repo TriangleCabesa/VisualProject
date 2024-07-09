@@ -15,7 +15,7 @@
             bitmap = new Bitmap(1, 1);
             graphics = Graphics.FromImage(bitmap);
             Objects.Add(Player);
-            LastEventArgs = new(graphics, new Rectangle());
+            LastEventArgs = new(graphics, new Rectangle(0, 0, 800, 450));
         }
 
         public void Update(List<(Keys key, TimeSpan time)> pressedTimers)

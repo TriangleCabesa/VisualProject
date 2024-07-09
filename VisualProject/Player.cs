@@ -4,7 +4,7 @@
     {
         public Point Location { get; private set; }
         public int Size { get; set; } = 100;
-        public int Rotation { get; set; } = 0;
+        public double Rotation { get; set; } = 0;
 
         private bool _canFire = true;
         public bool CanFire 
@@ -24,18 +24,16 @@
         }
 
         private List<Polygon> _collisionBox = [];
+
         private readonly int _shotsPerSecond = 10;
 
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
-            if (Size < 0)
-                Size = 0;
+            Size = Size < 0 ? 0 : Size;
 
             List<Polygon> result = [];
-            
-            double rotation = Rotation * (Math.PI / 180);
-            Point startPoint = new(Location.X, Location.Y);
+
             Polygon polygon = new();
             polygon.Points.Add(new Point(Location.X, Location.Y - Size / 2));
             polygon.Points.Add(new Point(Location.X - Size, Location.Y + Size / 3));
@@ -45,10 +43,8 @@
             polygon.Points.Add(new Point(Location.X + Size - Size / 5, Location.Y + Size / 3));
             polygon.Points.Add(new Point(polygon.Points.Last().X, polygon.Points.Last().Y + Size / 5));
             polygon.Points.Add(new Point(polygon.Points.Last().X + Size / 5, polygon.Points.Last().Y));
-            polygon.Points.Add(new Point (Location.X + Size, Location.Y + Size / 3));
-
+            polygon.Points.Add(new Point(Location.X + Size, Location.Y + Size / 3));
             polygon.Brush = Brushes.Gray;
-            
             result.Add(polygon);
 
             polygon = new();
@@ -60,7 +56,7 @@
 
             for (int i = 0; i < result.Count; i++)
                 for (int j = 0; j < result[i].Points.Count; j++)
-                    result[i].Points[j] = result[i].Points[j].Rotate(startPoint, rotation);
+                    result[i].Points[j] = result[i].Points[j].Rotate(Location, Rotation);
 
             _collisionBox = result;
                 
@@ -104,31 +100,13 @@
                 var deltaX = lastX - Location.X;
                 var deltaY = lastY - Location.Y;
 
-                Rotation = (int)(Math.Atan2(deltaX, deltaY) * (-180 / Math.PI));
+                Rotation = Math.Atan2(-deltaX, deltaY);
             }
 
             return true;
         }
 
-        /// <inheritdoc/>
-        public bool CollidesWith(List<Polygon> polygons)
-        {
-            ArgumentNullException.ThrowIfNull(polygons);
-
-            foreach (var polygonOne in _collisionBox)
-            {
-                foreach (var polygonTwo in polygons)
-                {
-                    if (polygonOne.PolygonsIntersect(polygonTwo))
-                        return true;
-                    
-                    if (polygonOne.Points.Any(polygonTwo.IsPointInPolygon)
-                     || polygonTwo.Points.Any(polygonOne.IsPointInPolygon))
-                        return true;
-                }
-            }
-
-            return false;
-        }
+        public bool CollidesWith(List<Polygon> polygons) =>
+            CollisionDetector.CollidesWith(_collisionBox, polygons);
     }
 }
