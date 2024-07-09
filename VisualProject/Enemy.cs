@@ -10,33 +10,12 @@ namespace VisualProject
 
         public Enemy(Player player, Rectangle spawnWindow)
         {
+            if (spawnWindow.Width < 800 || spawnWindow.Height < 450)
+                spawnWindow = new Rectangle(0, 0, 800, 450);
+
             _player = player;
-
-            double hypotenuse = 0;
-            double xDiff = 0;
-            double yDiff = 0;
-
-            double maxDistance = Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y, 2));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y, 2)));
-            
-            double minimumSpawnDistance = maxDistance < 1000 ? maxDistance * 0.5 : 500;
-
-            while (hypotenuse < minimumSpawnDistance)
-            {
-                Random random = new();
-                _location.X = random.Next(spawnWindow.Width);
-                _location.Y = random.Next(spawnWindow.Height);
-
-                xDiff = _player.Location.X - _location.X;
-                yDiff = _player.Location.Y - _location.Y;
-
-                hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - _location.X, 2) + Math.Pow(_player.Location.Y - _location.Y, 2));
-            }
-
-            _direction.X = xDiff / hypotenuse;
-            _direction.Y = yDiff / hypotenuse;
+            _location = GetSafeSpawnPoint(spawnWindow);
+            _direction = GetUpdatedDirection();
         }
 
         /// <inheritdoc/>
@@ -63,29 +42,19 @@ namespace VisualProject
         {
             foreach (var gameObject in gameObjects.Where(x => x is ICollidable))
             {
-                ICollidable? collidable = gameObject as ICollidable;
-
-                if (collidable is null || collidable is Enemy)
+                if (gameObject is not ICollidable collidable || collidable is Enemy)
                     continue;
-                
+
                 if (collidable.CollidesWith(_collisionBox))
                     return false;
             }
 
-            double xDiff = _player.Location.X - _location.X;
-            double yDiff = _player.Location.Y - _location.Y;
-
-            double hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - _location.X, 2) + Math.Pow(_player.Location.Y - _location.Y, 2));
-
-            _direction.X = xDiff / hypotenuse;
-            _direction.Y = yDiff / hypotenuse;
-
+            _direction = GetUpdatedDirection();
             _moveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds / 20;
-
             _location.X += _moveDistance * _direction.X;
             _location.Y += _moveDistance * _direction.Y;
 
-            return Math.Abs(hypotenuse) >= 1;
+            return true;
         }
 
         /// <inheritdoc/>
@@ -107,6 +76,48 @@ namespace VisualProject
             }
 
             return false;
+        }
+
+        private double GetMinimumSpawnDistance(Rectangle spawnWindow)
+        {
+            double maxDistance = Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y, 2));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y, 2)));
+
+            // At this point, maxDistance represents which corner of the spawn window the player object is the furthest from.
+            // If there is no space within the spawn window further than 1000 units away, a minimum distance of 500 is used instead the max distance divided by two.
+
+            return maxDistance < 1000 ? maxDistance / 2 : 500;
+        }
+
+        private (double X, double Y) GetSafeSpawnPoint(Rectangle spawnWindow)
+        {
+            double hypotenuse = 0;
+            double x = 0;
+            double y = 0;
+
+            double minimumSpawnDistance = GetMinimumSpawnDistance(spawnWindow);
+
+            while (hypotenuse < minimumSpawnDistance)
+            {
+                Random random = new();
+                x = random.Next(spawnWindow.Width);
+                y = random.Next(spawnWindow.Height);
+                hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - x, 2) + Math.Pow(_player.Location.Y - y, 2));
+            }
+
+            return (x, y);
+        }
+
+        private (double X, double Y) GetUpdatedDirection()
+        {
+            double xDiff = _player.Location.X - _location.X;
+            double yDiff = _player.Location.Y - _location.Y;
+
+            double hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - _location.X, 2) + Math.Pow(_player.Location.Y - _location.Y, 2));
+
+            return (xDiff / hypotenuse, yDiff / hypotenuse);
         }
     }
 }
