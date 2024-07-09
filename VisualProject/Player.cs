@@ -7,7 +7,6 @@
         public int Size { get; set; } = 100;
         public int Rotation { get; set; } = 0;
         public int ShotsPerSecond { get; set; } = 10;
-        private List<Polygon> CollisionBox { get; set; } = [];
 
         private bool _canFire = true;
         public bool CanFire 
@@ -25,6 +24,8 @@
                     });
             }
         }
+
+        private List<Polygon> _collisionBox = [];
 
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
@@ -62,7 +63,7 @@
                 for (int j = 0; j < result[i].Points.Count; j++)
                     result[i].Points[j] = result[i].Points[j].Rotate(startPoint, rotation);
 
-            CollisionBox = result;
+            _collisionBox = result;
                 
             return result;
         }
@@ -119,7 +120,7 @@
         {
             ArgumentNullException.ThrowIfNull(polygons);
 
-            foreach (var polygonOne in CollisionBox)
+            foreach (var polygonOne in _collisionBox)
             {
                 foreach (var polygonTwo in polygons)
                 {
