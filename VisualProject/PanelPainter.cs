@@ -1,10 +1,7 @@
-﻿using System.Drawing.Drawing2D;
-
-namespace VisualProject
+﻿namespace VisualProject
 {
     public class PanelPainter
     {
-        public int rectangleSize = 100;
         public Point MouseLocation { get; set; } = new Point(0, 0);
         public List<IGameObject> Objects { get; set; } = [];
         public Player Player { get; set; } = new();
