@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace VisualProject
 {
@@ -12,9 +7,9 @@ namespace VisualProject
         private double X;
         private double Y;
         private (double X, double Y) Direction = (0, 0);
-        private Stopwatch stopwatch = Stopwatch.StartNew();
-        private TimeSpan LifeSpan;
-        private List<Polygon> CollisionBox { get; set; } = [];
+        private List<Polygon> _collisionBox = [];
+        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private readonly TimeSpan _lifeSpan;
 
         public Projectile(int x, int y, (int X, int Y) destination, TimeSpan lifeSpan)
         {
@@ -28,15 +23,14 @@ namespace VisualProject
 
             Direction.X = xDiff / hypotenuse;
             Direction.Y = yDiff / hypotenuse;
-            LifeSpan = lifeSpan;
+            _lifeSpan = lifeSpan;
         }
 
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
-            List<Polygon> list = new List<Polygon>();      
-
-            Polygon polygon = new Polygon();
+            List<Polygon> list = [];
+            Polygon polygon = new();
 
             int bulletSize = 10;
             polygon.Points.Add(new Point((int)X,(int)Y));
@@ -45,8 +39,7 @@ namespace VisualProject
             polygon.Points.Add(new Point((int)X, (int)Y + bulletSize));
 
             list.Add(polygon);
-
-            CollisionBox = list;
+            _collisionBox = list;
 
             return list;
         }
@@ -58,14 +51,14 @@ namespace VisualProject
             X += Direction.X * moveDistance;
             Y += Direction.Y * moveDistance;
 
-            return stopwatch.Elapsed < LifeSpan;
+            return _stopwatch.Elapsed < _lifeSpan;
         }
 
         public bool CollidesWith(List<Polygon> polygons)
         {
             ArgumentNullException.ThrowIfNull(polygons);
 
-            foreach (var polygonOne in CollisionBox)
+            foreach (var polygonOne in _collisionBox)
             {
                 foreach (var polygonTwo in polygons)
                 {
