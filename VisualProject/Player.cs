@@ -6,7 +6,6 @@
         public int Y { get; set; }
         public int Size { get; set; } = 100;
         public int Rotation { get; set; } = 0;
-        public int ShotsPerSecond { get; set; } = 10;
 
         private bool _canFire = true;
         public bool CanFire 
@@ -19,13 +18,14 @@
                 if (!value)
                     Task.Run(() => 
                     {
-                        Thread.Sleep(TimeSpan.FromMilliseconds(1000 / ShotsPerSecond));
+                        Thread.Sleep(TimeSpan.FromMilliseconds(1000 / _shotsPerSecond));
                         _canFire = true;
                     });
             }
         }
 
         private List<Polygon> _collisionBox = [];
+        private readonly int _shotsPerSecond = 10;
 
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
