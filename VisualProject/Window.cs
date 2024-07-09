@@ -155,8 +155,7 @@ namespace VisualProject
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
             painter ??= new PanelPainter();
-            painter.MouseX = e.X;
-            painter.MouseY = e.Y;
+            painter.MouseLocation = e.Location;
         }
     }
 }

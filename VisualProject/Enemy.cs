@@ -16,10 +16,10 @@ namespace VisualProject
             double xDiff = 0;
             double yDiff = 0;
 
-            double maxDistance = Math.Sqrt(Math.Pow(_player.X - 0, 2) + Math.Pow(_player.Y - 0, 2));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.X - 0, 2) + Math.Pow(_player.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.X - spawnWindow.Width, 2) + Math.Pow(_player.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.X - spawnWindow.Width, 2) + Math.Pow(_player.Y - 0, 2)));
+            double maxDistance = Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y, 2));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y, 2)));
             
             double minimumSpawnDistance = maxDistance < 1000 ? maxDistance * 0.5 : 500;
 
@@ -29,10 +29,10 @@ namespace VisualProject
                 _location.X = random.Next(spawnWindow.Width);
                 _location.Y = random.Next(spawnWindow.Height);
 
-                xDiff = _player.X - _location.X;
-                yDiff = _player.Y - _location.Y;
+                xDiff = _player.Location.X - _location.X;
+                yDiff = _player.Location.Y - _location.Y;
 
-                hypotenuse = Math.Sqrt(Math.Pow(_player.X - _location.X, 2) + Math.Pow(_player.Y - _location.Y, 2));
+                hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - _location.X, 2) + Math.Pow(_player.Location.Y - _location.Y, 2));
             }
 
             _direction.X = xDiff / hypotenuse;
@@ -72,10 +72,10 @@ namespace VisualProject
                     return false;
             }
 
-            double xDiff = _player.X - _location.X;
-            double yDiff = _player.Y - _location.Y;
+            double xDiff = _player.Location.X - _location.X;
+            double yDiff = _player.Location.Y - _location.Y;
 
-            double hypotenuse = Math.Sqrt(Math.Pow(_player.X - _location.X, 2) + Math.Pow(_player.Y - _location.Y, 2));
+            double hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - _location.X, 2) + Math.Pow(_player.Location.Y - _location.Y, 2));
 
             _direction.X = xDiff / hypotenuse;
             _direction.Y = yDiff / hypotenuse;
@@ -88,6 +88,7 @@ namespace VisualProject
             return Math.Abs(hypotenuse) >= 1;
         }
 
+        /// <inheritdoc/>
         public bool CollidesWith(List<Polygon> polygons)
         {
             ArgumentNullException.ThrowIfNull(polygons);

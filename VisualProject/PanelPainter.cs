@@ -5,14 +5,13 @@ namespace VisualProject
     public class PanelPainter
     {
         public int rectangleSize = 100;
-        private Bitmap bitmap;
-        private Graphics graphics;
-        public int MouseX = 0;
-        public int MouseY = 0;
-
-        public List<IGameObject> Objects { get; set; } = new();
+        public Point MouseLocation { get; set; } = new Point(0, 0);
+        public List<IGameObject> Objects { get; set; } = [];
         public Player Player { get; set; } = new();
         public PaintEventArgs LastEventArgs { get; set; }
+
+        private Bitmap bitmap;
+        private Graphics graphics;
 
         public PanelPainter()
         {
@@ -26,7 +25,7 @@ namespace VisualProject
         {
             if (pressedTimers.Any(x => x.key == Keys.Space) && Player.CanFire)
             {
-                Objects.Add(new Projectile(Player.X, Player.Y, (MouseX, MouseY), TimeSpan.FromSeconds(10)));
+                Objects.Add(new Projectile(new Point(Player.Location.X, Player.Location.Y), new Point(MouseLocation.X, MouseLocation.Y), TimeSpan.FromSeconds(10)));
                 Player.CanFire = false;
             }
 
