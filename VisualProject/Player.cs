@@ -24,7 +24,6 @@
         }
 
         private List<Polygon> _collisionBox = [];
-
         private readonly int _shotsPerSecond = 10;
 
         /// <inheritdoc/>

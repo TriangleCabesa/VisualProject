@@ -2,20 +2,23 @@
 {
     public class PanelPainter
     {
-        public Point MouseLocation { get; set; } = new Point(0, 0);
-        public List<IGameObject> Objects { get; set; } = [];
-        public Player Player { get; set; } = new();
-        public PaintEventArgs LastEventArgs { get; set; }
+        public PaintEventArgs LastWindow { get; set; }
+        public Point MouseLocation { get; set; }
+        public List<IGameObject> Objects { get; set; }
+        public Player Player { get; set; }
 
         private Bitmap bitmap;
         private Graphics graphics;
 
         public PanelPainter()
         {
-            bitmap = new Bitmap(1, 1);
-            graphics = Graphics.FromImage(bitmap);
+            MouseLocation = new Point(0, 0);
+            Objects = [];
+            Player = new();
             Objects.Add(Player);
-            LastEventArgs = new(graphics, new Rectangle(0, 0, 800, 450));
+            bitmap = new Bitmap(800, 450);
+            graphics = Graphics.FromImage(bitmap);
+            LastWindow = new(graphics, new Rectangle(0, 0, 800, 450));
         }
 
         public void Update(List<(Keys key, TimeSpan time)> pressedTimers)
@@ -31,36 +34,34 @@
                 int max = new Random().Next(10,20);
 
                 for (int i = 0; i < max; i++)
-                    Objects.Add(new Enemy(Player, LastEventArgs.ClipRectangle));
+                    Objects.Add(new Enemy(Player, LastWindow.ClipRectangle));
             }
 
             Objects.RemoveAll(gameObject => !gameObject.Update(pressedTimers, Objects));
         }
 
-        public void Paint(PaintEventArgs e, bool paintChange)
+        public void Paint(PaintEventArgs window, bool paintChange)
         {
-            LastEventArgs = e;
-            bitmap ??= new Bitmap(e.ClipRectangle.Width, e.ClipRectangle.Height);
+            LastWindow = window;
+            bitmap ??= new Bitmap(LastWindow.ClipRectangle.Width, LastWindow.ClipRectangle.Height);
 
             if (!paintChange)
             {
-                e.Graphics.DrawImage(bitmap, 0, 0);
+                LastWindow.Graphics.DrawImage(bitmap, 0, 0);
                 return;
             }
 
-            bitmap = new Bitmap(e.ClipRectangle.Width, e.ClipRectangle.Height);
+            bitmap = new Bitmap(LastWindow.ClipRectangle.Width, LastWindow.ClipRectangle.Height);
             graphics = Graphics.FromImage(bitmap);
             PaintObjects();
-            e.Graphics.DrawImage(bitmap, 0, 0);
+            LastWindow.Graphics.DrawImage(bitmap, 0, 0);
         }
 
         private void PaintObjects()
         {
-            foreach (var gameObject in Objects)
+            foreach (IGameObject gameObject in Objects)
                 foreach (Polygon polygon in gameObject.GetObjectSprite())
-                {
                     graphics.FillPolygon(polygon.Brush, polygon.Points.ToArray());
-                }
         }
     }
 }
