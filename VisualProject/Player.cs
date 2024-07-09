@@ -68,9 +68,9 @@
         private readonly List<Point> _barrelLocations =
         [
             new(1, 9),
+            new(22, 9),
             new(6, 6),
             new(17, 6),
-            new(22, 9),
         ];
 
         /// <inheritdoc/>
@@ -78,7 +78,7 @@
         {
             Size = Size < 0 ? 0 : Size;
 
-            List<Polygon> result = ImageConverter.GetPolygonsFromImage(Location, _playerSprite, Size, 215);
+            List<Polygon> result = ImageConverter.GetPolygonsFromImage(Location, _playerSprite, Size);
 
             for (int i = 0; i < result.Count; i++)
                 for (int j = 0; j < result[i].Points.Count; j++)

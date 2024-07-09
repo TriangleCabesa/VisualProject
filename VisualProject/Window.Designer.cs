@@ -39,6 +39,7 @@ namespace VisualProject
             Name = "Window";
             Text = "Window";
             FormClosing += Window_FormClosing;
+            Load += Window_Load;
             Shown += Window_Shown;
             ResizeBegin += Window_ResizeBegin;
             ResizeEnd += Window_ResizeEnd;

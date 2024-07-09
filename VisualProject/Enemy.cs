@@ -55,6 +55,7 @@ namespace VisualProject
             return true;
         }
 
+        /// <inheritdoc/>
         public bool CollidesWith(List<Polygon> polygons) =>
             CollisionDetector.CollidesWith(_collisionBox, polygons);
 

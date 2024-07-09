@@ -12,7 +12,7 @@ namespace VisualProject
         List<(Keys key, Stopwatch timer)> keyList = [];
         List<(Keys key, TimeSpan time)> pressedTimers = [];
         Stopwatch Stopwatch = Stopwatch.StartNew();
-        
+
         public Window()
         {
             InitializeComponent();
@@ -153,6 +153,11 @@ namespace VisualProject
         {
             painter ??= new PanelPainter();
             painter.MouseLocation = e.Location;
+        }
+
+        private void Window_Load(object sender, EventArgs e)
+        {
+            ImageConverter.PixelNotUsedCondition = color => !(color.R >= 215 && color.G >= 215 && color.B >= 215);
         }
     }
 }

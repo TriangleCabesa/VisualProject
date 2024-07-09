@@ -60,6 +60,7 @@ namespace VisualProject
             return _stopwatch.Elapsed < _lifeSpan;
         }
 
+        /// <inheritdoc/>
         public bool CollidesWith(List<Polygon> polygons) =>
             CollisionDetector.CollidesWith(_collisionBox, polygons);
     }
