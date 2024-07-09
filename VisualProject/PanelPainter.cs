@@ -25,7 +25,7 @@
         {
             if (pressedTimers.Any(x => x.key == Keys.Space) && Player.CanFire)
             {
-                Objects.Add(new Projectile(new Point(Player.Location.X, Player.Location.Y), new Point(MouseLocation.X, MouseLocation.Y), TimeSpan.FromSeconds(10)));
+                Objects.Add(new Projectile(Player.ProjectileOrigin, new Point(MouseLocation.X, MouseLocation.Y), TimeSpan.FromSeconds(10)));
                 Player.CanFire = false;
             }
 
@@ -53,7 +53,9 @@
 
             bitmap = new Bitmap(LastWindow.ClipRectangle.Width, LastWindow.ClipRectangle.Height);
             graphics = Graphics.FromImage(bitmap);
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
             PaintObjects();
+            
             LastWindow.Graphics.DrawImage(bitmap, 0, 0);
         }
 

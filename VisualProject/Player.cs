@@ -3,7 +3,22 @@
     public class Player : IGameObject, ICollidable
     {
         public Point Location { get; private set; }
-        public int Size { get; set; } = 100;
+
+        private Point _projectileOrigin;
+        public Point ProjectileOrigin
+        {
+            get
+            {
+                _barrelNumber++;
+
+                if (_barrelNumber == _barrelLocations.Count)
+                    _barrelNumber = 0;
+
+                return _projectileOrigin;
+            }
+            private set => _projectileOrigin = value;
+        }
+        public int Size { get; set; } = 10;
         public double Rotation { get; set; } = 0;
 
         private bool _canFire = true;
@@ -26,39 +41,31 @@
         private List<Polygon> _collisionBox = [];
         private readonly int _shotsPerSecond = 10;
 
+
+        private int _barrelNumber = 0;
+        private Bitmap _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @"VisualProject\VisualProject\Sprites\ShipSprite.png"));
+        private readonly List<Point> _barrelLocations =
+        [
+            new(1, 9),
+            new(6, 6),
+            new(17, 6),
+            new(22, 9),
+        ];
+
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
             Size = Size < 0 ? 0 : Size;
 
-            List<Polygon> result = [];
-
-            Polygon polygon = new();
-            polygon.Points.Add(new Point(Location.X, Location.Y - Size / 2));
-            polygon.Points.Add(new Point(Location.X - Size, Location.Y + Size / 3));
-            polygon.Points.Add(new Point(polygon.Points.Last().X, polygon.Points.Last().Y + Size / 5));
-            polygon.Points.Add(new Point(polygon.Points.Last().X + Size / 5, polygon.Points.Last().Y));
-            polygon.Points.Add(new Point(polygon.Points.Last().X, polygon.Points.Last().Y - Size / 5));
-            polygon.Points.Add(new Point(Location.X + Size - Size / 5, Location.Y + Size / 3));
-            polygon.Points.Add(new Point(polygon.Points.Last().X, polygon.Points.Last().Y + Size / 5));
-            polygon.Points.Add(new Point(polygon.Points.Last().X + Size / 5, polygon.Points.Last().Y));
-            polygon.Points.Add(new Point(Location.X + Size, Location.Y + Size / 3));
-            polygon.Brush = Brushes.Gray;
-            result.Add(polygon);
-
-            polygon = new();
-            polygon.Points.Add(new Point(Location.X, Location.Y - Size / 3));
-            polygon.Points.Add(new Point(Location.X + Size / 3, Location.Y));
-            polygon.Points.Add(new Point(Location.X - Size / 3, Location.Y));
-            polygon.Brush = Brushes.Cyan;
-            result.Add(polygon);
+            List<Polygon> result = ImageConverter.GetPolygonsFromImage(Location, _playerSprite, Size, 215);
 
             for (int i = 0; i < result.Count; i++)
                 for (int j = 0; j < result[i].Points.Count; j++)
                     result[i].Points[j] = result[i].Points[j].Rotate(Location, Rotation);
 
             _collisionBox = result;
-                
+            ProjectileOrigin = GetBarrelLocation(); // We update this here so it's set to the right place on the next frame
+
             return result;
         }
 
@@ -107,5 +114,24 @@
 
         public bool CollidesWith(List<Polygon> polygons) =>
             CollisionDetector.CollidesWith(_collisionBox, polygons);
+
+        private Point GetBarrelLocation()
+        {
+            Point targetPoint = _barrelLocations[_barrelNumber];
+
+            if (targetPoint.X > _playerSprite.Width || targetPoint.Y > _playerSprite.Height)
+                throw new ArgumentOutOfRangeException(nameof(targetPoint), "point not in range of sprite image");
+
+            int spriteSizeX = _playerSprite.Width * Size;
+            int spriteSizeY = _playerSprite.Height * Size;
+
+            int startX = Location.X - spriteSizeX / 2;
+            int startY = Location.Y - spriteSizeY / 2;
+
+            int locationX = startX + targetPoint.X * Size + Size / 2;
+            int locationY = startY + targetPoint.Y * Size + Size / 2;
+
+            return new Point(locationX, locationY).Rotate(Location, Rotation);
+        }
     }
 }

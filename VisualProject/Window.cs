@@ -146,10 +146,7 @@ namespace VisualProject
 
         private void Window_MouseWheel(object sender, MouseEventArgs e)
         {
-            if (e.Delta == 120 || e.Delta == -120)
-                pressedTimers.Add((Keys.Up, TimeSpan.FromMilliseconds(e.Delta / 60)));
-            else
-                pressedTimers.Add((Keys.Up, TimeSpan.FromMilliseconds(e.Delta / 15)));
+            pressedTimers.Add((Keys.Up, TimeSpan.FromMilliseconds(e.Delta / 60)));
         }
 
         private void Window_MouseMove(object sender, MouseEventArgs e)

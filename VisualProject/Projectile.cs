@@ -39,10 +39,10 @@ namespace VisualProject
             Polygon polygon = new();
 
             int bulletSize = 10;
-            polygon.Points.Add(new Point((int)_location.X, (int)_location.Y));
-            polygon.Points.Add(new Point((int)_location.X + bulletSize, (int)_location.Y));
-            polygon.Points.Add(new Point((int)_location.X + bulletSize, (int)_location.Y + bulletSize));
-            polygon.Points.Add(new Point((int)_location.X, (int)_location.Y + bulletSize));
+            polygon.Points.Add(new Point((int)_location.X - bulletSize / 2, (int)_location.Y - bulletSize / 2));
+            polygon.Points.Add(new Point((int)_location.X + bulletSize / 2, (int)_location.Y - bulletSize / 2));
+            polygon.Points.Add(new Point((int)_location.X + bulletSize / 2, (int)_location.Y + bulletSize / 2));
+            polygon.Points.Add(new Point((int)_location.X - bulletSize / 2, (int)_location.Y + bulletSize / 2));
 
             list.Add(polygon);
             _collisionBox = list;
