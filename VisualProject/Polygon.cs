@@ -2,8 +2,9 @@
 {
     public class Polygon
     {
-        public List<Point> Points { get; set; } = new();
+        public List<Point> Points { get; set; } = [];
         public Brush Brush { get; set; } = Brushes.Black;
+
         public Rectangle ToRectangle()
         {
             if (Points == null || Points.Count != 4)

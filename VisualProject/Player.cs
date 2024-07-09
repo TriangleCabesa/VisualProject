@@ -1,8 +1,4 @@
-﻿
-using System.Drawing;
-using System.Reflection;
-
-namespace VisualProject
+﻿namespace VisualProject
 {
     public class Player : IGameObject, ICollidable
     {
@@ -10,22 +6,22 @@ namespace VisualProject
         public int Y { get; set; }
         public int Size { get; set; } = 100;
         public int Rotation { get; set; } = 0;
-        public int ShotsPerSecond = 10;
+        public int ShotsPerSecond { get; set; } = 10;
         private List<Polygon> CollisionBox { get; set; } = [];
 
-        private bool canFire = true;
+        private bool _canFire = true;
         public bool CanFire 
         {
-            get { return canFire; }
+            get { return _canFire; }
             set
             {
-                canFire = value;
+                _canFire = value;
 
                 if (!value)
                     Task.Run(() => 
                     {
                         Thread.Sleep(TimeSpan.FromMilliseconds(1000 / ShotsPerSecond));
-                        canFire = true;
+                        _canFire = true;
                     });
             }
         }

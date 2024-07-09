@@ -2,42 +2,41 @@ namespace VisualProject
 {
     public class Enemy : IGameObject, ICollidable
     {
-        private double X { get; set; }
-        private double Y { get; set; }
-        private (double X, double Y) Direction = (0, 0);
-        private Player Player { get; set; }
-        double MoveDistance { get; set; } = 0;
-        private List<Polygon> CollisionBox { get; set; } = [];
+        private (double X, double Y) _location;
+        private (double X, double Y) _direction = (0, 0);
+        private Player _player;
+        private double _moveDistance = 0;
+        private List<Polygon> _collisionBox = [];
 
         public Enemy(Player player, Rectangle spawnWindow)
         {
-            Player = player;
+            _player = player;
 
             double hypotenuse = 0;
             double xDiff = 0;
             double yDiff = 0;
 
-            double maxDistance = Math.Sqrt(Math.Pow(Player.X - 0, 2) + Math.Pow(Player.Y - 0, 2));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(Player.X - 0, 2) + Math.Pow(Player.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(Player.X - spawnWindow.Width, 2) + Math.Pow(Player.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(Player.X - spawnWindow.Width, 2) + Math.Pow(Player.Y - 0, 2)));
+            double maxDistance = Math.Sqrt(Math.Pow(_player.X - 0, 2) + Math.Pow(_player.Y - 0, 2));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.X - 0, 2) + Math.Pow(_player.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.X - spawnWindow.Width, 2) + Math.Pow(_player.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.X - spawnWindow.Width, 2) + Math.Pow(_player.Y - 0, 2)));
             
             double minimumSpawnDistance = maxDistance < 1000 ? maxDistance * 0.5 : 500;
 
             while (hypotenuse < minimumSpawnDistance)
             {
                 Random random = new();
-                X = random.Next(spawnWindow.Width);
-                Y = random.Next(spawnWindow.Height);
+                _location.X = random.Next(spawnWindow.Width);
+                _location.Y = random.Next(spawnWindow.Height);
 
-                xDiff = Player.X - X;
-                yDiff = Player.Y - Y;
+                xDiff = _player.X - _location.X;
+                yDiff = _player.Y - _location.Y;
 
-                hypotenuse = Math.Sqrt(Math.Pow(Player.X - X, 2) + Math.Pow(Player.Y - Y, 2));
+                hypotenuse = Math.Sqrt(Math.Pow(_player.X - _location.X, 2) + Math.Pow(_player.Y - _location.Y, 2));
             }
 
-            Direction.X = xDiff / hypotenuse;
-            Direction.Y = yDiff / hypotenuse;
+            _direction.X = xDiff / hypotenuse;
+            _direction.Y = yDiff / hypotenuse;
         }
 
         /// <inheritdoc/>
@@ -46,15 +45,15 @@ namespace VisualProject
             List<Polygon> list = [];
             Polygon polygon = new();
 
-            polygon.Points.Add(new Point((int)X, (int)Y));
-            polygon.Points.Add(new Point((int)(X + 50), (int)Y));
-            polygon.Points.Add(new Point((int)(X + 50), (int)(Y + 50)));
-            polygon.Points.Add(new Point((int)X, (int)(Y + 50)));
+            polygon.Points.Add(new Point((int)_location.X, (int)_location.Y));
+            polygon.Points.Add(new Point((int)(_location.X + 50), (int)_location.Y));
+            polygon.Points.Add(new Point((int)(_location.X + 50), (int)(_location.Y + 50)));
+            polygon.Points.Add(new Point((int)_location.X, (int)(_location.Y + 50)));
             polygon.Brush = Brushes.DarkRed;
 
             list.Add(polygon);
 
-            CollisionBox = list;
+            _collisionBox = list;
 
             return list;
         }
@@ -69,22 +68,22 @@ namespace VisualProject
                 if (collidable is null || collidable is Enemy)
                     continue;
                 
-                if (collidable.CollidesWith(CollisionBox))
+                if (collidable.CollidesWith(_collisionBox))
                     return false;
             }
 
-            double xDiff = Player.X - X;
-            double yDiff = Player.Y - Y;
+            double xDiff = _player.X - _location.X;
+            double yDiff = _player.Y - _location.Y;
 
-            double hypotenuse = Math.Sqrt(Math.Pow(Player.X - X, 2) + Math.Pow(Player.Y - Y, 2));
+            double hypotenuse = Math.Sqrt(Math.Pow(_player.X - _location.X, 2) + Math.Pow(_player.Y - _location.Y, 2));
 
-            Direction.X = xDiff / hypotenuse;
-            Direction.Y = yDiff / hypotenuse;
+            _direction.X = xDiff / hypotenuse;
+            _direction.Y = yDiff / hypotenuse;
 
-            MoveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds / 20;
+            _moveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds / 20;
 
-            X += MoveDistance * Direction.X;
-            Y += MoveDistance * Direction.Y;
+            _location.X += _moveDistance * _direction.X;
+            _location.Y += _moveDistance * _direction.Y;
 
             return Math.Abs(hypotenuse) >= 1;
         }
@@ -93,7 +92,7 @@ namespace VisualProject
         {
             ArgumentNullException.ThrowIfNull(polygons);
 
-            foreach (var polygonOne in CollisionBox)
+            foreach (var polygonOne in _collisionBox)
             {
                 foreach (var polygonTwo in polygons)
                 {

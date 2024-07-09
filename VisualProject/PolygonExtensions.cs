@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VisualProject
 {
-    public static class RectangleExtensions
+    public static class PolygonExtensions
     {
         public static List<(Brush brush, Rectangle rectangle)> AsHollowedSquare(this Rectangle rectangle, Brush brush, double filledPercentage)
         {

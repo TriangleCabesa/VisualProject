@@ -4,25 +4,24 @@ namespace VisualProject
 {
     public class Projectile : IGameObject, ICollidable
     {
-        private double X;
-        private double Y;
-        private (double X, double Y) Direction = (0, 0);
+        private (double X, double Y) _location = (0, 0);
+        private (double X, double Y) _direction = (0, 0);
         private List<Polygon> _collisionBox = [];
         private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
         private readonly TimeSpan _lifeSpan;
 
         public Projectile(int x, int y, (int X, int Y) destination, TimeSpan lifeSpan)
         {
-            X = x;
-            Y = y;
+            _location.X = x;
+            _location.Y = y;
 
             int xDiff = destination.X - x;
             int yDiff = destination.Y - y;
 
             double hypotenuse = Math.Sqrt(Math.Pow(destination.X - x, 2) + Math.Pow(destination.Y - y, 2));
 
-            Direction.X = xDiff / hypotenuse;
-            Direction.Y = yDiff / hypotenuse;
+            _direction.X = xDiff / hypotenuse;
+            _direction.Y = yDiff / hypotenuse;
             _lifeSpan = lifeSpan;
         }
 
@@ -33,10 +32,10 @@ namespace VisualProject
             Polygon polygon = new();
 
             int bulletSize = 10;
-            polygon.Points.Add(new Point((int)X,(int)Y));
-            polygon.Points.Add(new Point((int)X + bulletSize, (int)Y));
-            polygon.Points.Add(new Point((int)X + bulletSize, (int)Y + bulletSize));
-            polygon.Points.Add(new Point((int)X, (int)Y + bulletSize));
+            polygon.Points.Add(new Point((int)_location.X, (int)_location.Y));
+            polygon.Points.Add(new Point((int)_location.X + bulletSize, (int)_location.Y));
+            polygon.Points.Add(new Point((int)_location.X + bulletSize, (int)_location.Y + bulletSize));
+            polygon.Points.Add(new Point((int)_location.X, (int)_location.Y + bulletSize));
 
             list.Add(polygon);
             _collisionBox = list;
@@ -48,8 +47,8 @@ namespace VisualProject
         public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects)
         {
             double moveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds;
-            X += Direction.X * moveDistance;
-            Y += Direction.Y * moveDistance;
+            _location.X += _direction.X * moveDistance;
+            _location.Y += _direction.Y * moveDistance;
 
             return _stopwatch.Elapsed < _lifeSpan;
         }
