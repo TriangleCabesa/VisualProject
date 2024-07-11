@@ -10,7 +10,7 @@
         /// <summary>
         /// The maximum number of projectiles the player can shoot per second.
         /// </summary>
-        public int ShotsPerSecond { get; set; } = 10;
+        public int ShotsPerSecond { get; set; } = 4;
 
         /// <summary>
         /// Size of the sprite's pixels.

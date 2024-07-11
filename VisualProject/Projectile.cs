@@ -4,6 +4,8 @@ namespace VisualProject
 {
     public class Projectile : IGameObject, ICollidable
     {
+        public bool ObjectNotHit { get; set; } = true;
+
         // We can't use point because doubles are needed for higher accuracy.
         private (double X, double Y) _location;
         private (double X, double Y) _direction;
@@ -57,7 +59,7 @@ namespace VisualProject
             _location.X += _direction.X * moveDistance;
             _location.Y += _direction.Y * moveDistance;
 
-            return _stopwatch.Elapsed < _lifeSpan;
+            return _stopwatch.Elapsed < _lifeSpan && ObjectNotHit;
         }
 
         /// <inheritdoc/>

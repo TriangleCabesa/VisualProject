@@ -37,6 +37,7 @@ namespace VisualProject
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
+            _collisionBox = [];
             _explosionNumber = Math.Min(_explosionNumber, 7);
 
             if (_explosionNumber > 0)
@@ -81,6 +82,14 @@ namespace VisualProject
 
                 if (collidable.CollidesWith(_collisionBox))
                 {
+                    if (collidable is Projectile projectile)
+                    {
+                        if (!projectile.ObjectNotHit)
+                            continue;
+
+                        projectile.ObjectNotHit = false;
+                    }
+
                     _explosionNumber = 1;
                     _opacity = -1;
                     // Player.Health -= Enemy.Damage;
