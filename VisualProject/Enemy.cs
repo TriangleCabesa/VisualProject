@@ -4,14 +4,18 @@ namespace VisualProject
 {
     public class Enemy : IGameObject, ICollidable
     {
+        public static Player? Player;
         private (double X, double Y) _location;
         private (double X, double Y) _direction;
-        private readonly Player _player;
         private double _moveDistance;
         private double _movementSpeedMultiplier;
         private double _rotation;
         private List<Polygon> _collisionBox;
-        private readonly Bitmap _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @"VisualProject\VisualProject\Sprites\EnemySprite.png"));
+        private TimeSpan _explosionTimer;
+        private Bitmap _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @"VisualProject\VisualProject\Sprites\EnemySprite.png"));
+        private int _opacity;
+        private int _explosionNumber = 0;
+        private int _explosionFrameRate = 15;
 
         private readonly List<Point> _hitboxPoints =
         [
@@ -22,23 +26,31 @@ namespace VisualProject
             new(10, 9),
         ];
 
-        public Enemy(Player player, Rectangle spawnWindow)
+        public Enemy(Rectangle spawnWindow)
         {
-            _player = player;
             _location = GetSafeSpawnPoint(spawnWindow);
             _direction = GetUpdatedDirection();
             _collisionBox = GetObjectSprite();
-            _movementSpeedMultiplier = ((double)(new Random().Next(50)) / 100) + 0.75;
+            _movementSpeedMultiplier = ((double)(new Random().Next(100)) / 100) + 1;
         }
 
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
-            List<Polygon> result = ImageConverter.GetPolygonsFromImage(new Point((int)_location.X,(int)_location.Y), _playerSprite, 5);
+            int size = _explosionNumber > 0 ? 3 : 5;
+            _explosionNumber = Math.Min(_explosionNumber, 7);
+
+            if (_explosionNumber > 0)
+                _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @$"VisualProject\VisualProject\Sprites\Explosion{_explosionNumber}.png"));
+
+            List<Polygon> result = ImageConverter.GetPolygonsFromImage(new Point((int)_location.X,(int)_location.Y), _playerSprite, size, opacity: _opacity);
 
             for (int i = 0; i < result.Count; i++)
                 for (int j = 0; j < result[i].Points.Count; j++)
                     result[i].Points[j] = result[i].Points[j].Rotate(new Point((int)_location.X, (int)_location.Y), _rotation);
+
+            if (_explosionNumber > 0)
+                return result;
 
             Polygon polygon = new();
 
@@ -53,13 +65,29 @@ namespace VisualProject
         /// <inheritdoc/>
         public bool Update(List<(Keys key, TimeSpan time)> pressedTimers, List<IGameObject> gameObjects)
         {
+            if (_explosionNumber > 0)
+            {
+                UpdateExplosionNumber(pressedTimers);
+
+                return _explosionNumber <= 7;
+            }
+
+            if (_opacity < 255)
+                _opacity ++;
+
             foreach (var gameObject in gameObjects.Where(x => x is ICollidable))
             {
                 if (gameObject is not ICollidable collidable || collidable is Enemy)
                     continue;
 
                 if (collidable.CollidesWith(_collisionBox))
-                    return false;
+                {
+                    _explosionNumber = 1;
+                    _opacity = -1;
+                    // Player.Health -= Enemy.Damage;
+
+                    return true;
+                }
             }
 
             double lastX = _location.X;
@@ -88,10 +116,10 @@ namespace VisualProject
 
         private double GetMinimumSpawnDistance(Rectangle spawnWindow)
         {
-            double maxDistance = Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y, 2));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y - spawnWindow.Height, 2)));
-            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(_player.Location.X - spawnWindow.Width, 2) + Math.Pow(_player.Location.Y, 2)));
+            double maxDistance = Math.Sqrt(Math.Pow(Player!.Location.X, 2) + Math.Pow(Player.Location.Y, 2));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(Player.Location.X, 2) + Math.Pow(Player.Location.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(Player.Location.X - spawnWindow.Width, 2) + Math.Pow(Player.Location.Y - spawnWindow.Height, 2)));
+            maxDistance = Math.Max(maxDistance, Math.Sqrt(Math.Pow(Player.Location.X - spawnWindow.Width, 2) + Math.Pow(Player.Location.Y, 2)));
 
             // At this point, maxDistance represents which corner of the spawn window the player object is the furthest from.
             // If there is no space within the spawn window further than 1000 units away, a minimum distance of 500 is used instead the max distance divided by two.
@@ -107,12 +135,13 @@ namespace VisualProject
 
             double minimumSpawnDistance = GetMinimumSpawnDistance(spawnWindow);
 
-            while (hypotenuse < minimumSpawnDistance)
+            while (hypotenuse < minimumSpawnDistance || (x >= 0 && x <= spawnWindow.Width) || (y >= 0 && y <= spawnWindow.Height))
             {
                 Random random = new();
-                x = random.Next(spawnWindow.Width);
-                y = random.Next(spawnWindow.Height);
-                hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - x, 2) + Math.Pow(_player.Location.Y - y, 2));
+                x = random.Next(spawnWindow.Width + 1000) - 500;
+                y = random.Next(spawnWindow.Height + 1000) - 500;
+
+                hypotenuse = Math.Sqrt(Math.Pow(Player!.Location.X - x, 2) + Math.Pow(Player.Location.Y - y, 2));
             }
 
             return (x, y);
@@ -120,12 +149,23 @@ namespace VisualProject
 
         private (double X, double Y) GetUpdatedDirection()
         {
-            double xDiff = _player.Location.X - _location.X;
-            double yDiff = _player.Location.Y - _location.Y;
+            double xDiff = Player!.Location.X - _location.X;
+            double yDiff = Player.Location.Y - _location.Y;
 
-            double hypotenuse = Math.Sqrt(Math.Pow(_player.Location.X - _location.X, 2) + Math.Pow(_player.Location.Y - _location.Y, 2));
+            double hypotenuse = Math.Sqrt(Math.Pow(Player.Location.X - _location.X, 2) + Math.Pow(Player.Location.Y - _location.Y, 2));
 
             return (xDiff / hypotenuse, yDiff / hypotenuse);
+        }
+
+        private void UpdateExplosionNumber(List<(Keys key, TimeSpan time)> pressedTimers)
+        {
+            _explosionTimer += pressedTimers.First(x => x.key == Keys.F20).time;
+
+            while (_explosionTimer > TimeSpan.FromMilliseconds(1000 / _explosionFrameRate))
+            {
+                _explosionTimer -= TimeSpan.FromMilliseconds(1000 / _explosionFrameRate);
+                _explosionNumber++;
+            }
         }
     }
 }

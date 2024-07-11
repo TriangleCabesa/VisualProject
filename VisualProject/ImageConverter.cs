@@ -18,7 +18,7 @@
         /// <param name="pixelNotUsedCondition">Optional <see cref="Predicate{T}"/> that will only add <see cref="Polygon"/>s if it returns <see langword="true"/>.
         /// Defaults to <see cref="PixelNotUsedCondition"/>.</param>
         /// <returns></returns>
-        public static List<Polygon> GetPolygonsFromImage(Point centerPoint, Bitmap bitmap, int scaleFactor, Predicate<Color>? pixelNotUsedCondition = null)
+        public static List<Polygon> GetPolygonsFromImage(Point centerPoint, Bitmap bitmap, int scaleFactor, Predicate<Color>? pixelNotUsedCondition = null, int opacity = -1)
         {
             pixelNotUsedCondition ??= PixelNotUsedCondition;
 
@@ -43,6 +43,10 @@
                     polygon.Points.Add(new Point(currentX + scaleFactor, currentY + scaleFactor));
                     polygon.Points.Add(new Point(currentX + scaleFactor, currentY));
                     Color color = bitmap.GetPixel(i, j);
+
+                    if (opacity >= 0)
+                        color = Color.FromArgb(opacity, color.R, color.G, color.B);
+
                     polygon.Brush = new SolidBrush(color);
 
                     if (pixelNotUsedCondition(color))

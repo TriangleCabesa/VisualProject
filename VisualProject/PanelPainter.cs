@@ -19,6 +19,7 @@
             bitmap = new Bitmap(800, 450);
             graphics = Graphics.FromImage(bitmap);
             LastWindow = new(graphics, new Rectangle(0, 0, 800, 450));
+            Enemy.Player = Player;
         }
 
         public void Update(List<(Keys key, TimeSpan time)> pressedTimers)
@@ -34,7 +35,7 @@
                 int max = new Random().Next(10,20);
 
                 for (int i = 0; i < max; i++)
-                    Objects.Add(new Enemy(Player, LastWindow.ClipRectangle));
+                    Objects.Add(new Enemy(LastWindow.ClipRectangle));
             }
 
             Objects.RemoveAll(gameObject => !gameObject.Update(pressedTimers, Objects));

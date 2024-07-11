@@ -15,7 +15,7 @@
         /// <summary>
         /// Size of the sprite's pixels.
         /// </summary>
-        public int Size { get; set; } = 10;
+        public int Size { get; set; } = 5;
 
         /// <summary>
         /// The radians the player is rotated by.
