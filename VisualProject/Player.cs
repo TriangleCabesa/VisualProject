@@ -72,6 +72,19 @@
             new(6, 6),
             new(17, 6),
         ];
+        private readonly List<Point> _hitboxPoints =
+        [
+            new(1, 10),
+            new(6, 7),
+            new(11, 1),
+            new(12, 1),
+            new(17, 7),
+            new(22, 10),
+            new(21, 23),
+            new(14, 21),
+            new(9, 21),
+            new(2, 23),
+        ];
 
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
@@ -84,8 +97,14 @@
                 for (int j = 0; j < result[i].Points.Count; j++)
                     result[i].Points[j] = result[i].Points[j].Rotate(Location, Rotation);
 
-            _collisionBox = result;
             ProjectileOrigin = GetActualPointFromTargetPoint(_barrelLocations[_barrelNumber]); // We update this here so it's set to the right place on the next frame
+
+            Polygon polygon = new();
+
+            foreach (var point in _hitboxPoints)
+                polygon.Points.Add(GetActualPointFromTargetPoint(point));
+
+            _collisionBox = [polygon];
 
             return result;
         }
