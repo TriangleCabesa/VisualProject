@@ -8,6 +8,7 @@ namespace VisualProject
         private (double X, double Y) _direction;
         private readonly Player _player;
         private double _moveDistance;
+        private double _movementSpeedMultiplier;
         private double _rotation;
         private List<Polygon> _collisionBox;
         private readonly Bitmap _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @"VisualProject\VisualProject\Sprites\EnemySprite.png"));
@@ -27,6 +28,7 @@ namespace VisualProject
             _location = GetSafeSpawnPoint(spawnWindow);
             _direction = GetUpdatedDirection();
             _collisionBox = GetObjectSprite();
+            _movementSpeedMultiplier = ((double)(new Random().Next(50)) / 100) + 0.75;
         }
 
         /// <inheritdoc/>
@@ -65,6 +67,7 @@ namespace VisualProject
 
             _direction = GetUpdatedDirection();
             _moveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds / 20;
+            _moveDistance *= _movementSpeedMultiplier;
             _location.X += _moveDistance * _direction.X;
             _location.Y += _moveDistance * _direction.Y;
 
