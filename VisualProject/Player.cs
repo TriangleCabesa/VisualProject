@@ -156,29 +156,9 @@
         public bool CollidesWith(List<Polygon> polygons) =>
             CollisionDetector.CollidesWith(_collisionBox, polygons);
 
-        /// <summary>
-        /// <see cref="Location"/> is in the center of the displayed sprite. This takes the <paramref name="targetPoint"/>, and converts it
-        /// into a new <see cref="Point"/>. This is done based on the current <see cref="Location"/>, <see cref="Rotation"/>, and <see cref="Size"/>
-        /// of the <see cref="Player"/>.
-        /// </summary>
-        /// <param name="targetPoint">The point location as found on the sprite.</param>
-        /// <returns>The converted <see cref="Point"/> for the barrel location.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="targetPoint"/> is outside of the sprite image.</exception>
         private Point GetActualPointFromTargetPoint(Point targetPoint)
         {
-            if (targetPoint.X > _playerSprite.Width || targetPoint.Y > _playerSprite.Height || targetPoint.X < 0 || targetPoint.Y < 0)
-                throw new ArgumentOutOfRangeException(nameof(targetPoint), "point not in range of sprite image");
-
-            int spriteSizeX = _playerSprite.Width * Size;
-            int spriteSizeY = _playerSprite.Height * Size;
-
-            int startX = Location.X - spriteSizeX / 2;
-            int startY = Location.Y - spriteSizeY / 2;
-
-            int locationX = startX + targetPoint.X * Size + Size / 2;
-            int locationY = startY + targetPoint.Y * Size + Size / 2;
-
-            return new Point(locationX, locationY).Rotate(Location, Rotation);
+            return targetPoint.GetActualPointFromTargetPoint(Location, _playerSprite, Size, Rotation);
         }
     }
 }

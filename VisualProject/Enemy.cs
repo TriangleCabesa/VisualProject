@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace VisualProject
 {
     public class Enemy : IGameObject, ICollidable
@@ -6,7 +8,18 @@ namespace VisualProject
         private (double X, double Y) _direction;
         private readonly Player _player;
         private double _moveDistance;
+        private double _rotation;
         private List<Polygon> _collisionBox;
+        private readonly Bitmap _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @"VisualProject\VisualProject\Sprites\EnemySprite.png"));
+
+        private readonly List<Point> _hitboxPoints =
+        [
+            new(0, 9),
+            new(0, 5),
+            new(5, 0),
+            new(10, 5),
+            new(10, 9),
+        ];
 
         public Enemy(Player player, Rectangle spawnWindow)
         {
@@ -19,20 +32,20 @@ namespace VisualProject
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
-            List<Polygon> list = [];
+            List<Polygon> result = ImageConverter.GetPolygonsFromImage(new Point((int)_location.X,(int)_location.Y), _playerSprite, 5);
+
+            for (int i = 0; i < result.Count; i++)
+                for (int j = 0; j < result[i].Points.Count; j++)
+                    result[i].Points[j] = result[i].Points[j].Rotate(new Point((int)_location.X, (int)_location.Y), _rotation);
+
             Polygon polygon = new();
 
-            polygon.Points.Add(new Point((int)_location.X, (int)_location.Y));
-            polygon.Points.Add(new Point((int)(_location.X + 50), (int)_location.Y));
-            polygon.Points.Add(new Point((int)(_location.X + 50), (int)(_location.Y + 50)));
-            polygon.Points.Add(new Point((int)_location.X, (int)(_location.Y + 50)));
-            polygon.Brush = Brushes.DarkRed;
+            foreach (var point in _hitboxPoints)
+                polygon.Points.Add(point.GetActualPointFromTargetPoint(new Point((int)_location.X, (int)_location.Y), _playerSprite, 5, 0));
 
-            list.Add(polygon);
+            _collisionBox = [polygon];
 
-            _collisionBox = list;
-
-            return list;
+            return result;
         }
 
         /// <inheritdoc/>
@@ -47,10 +60,21 @@ namespace VisualProject
                     return false;
             }
 
+            double lastX = _location.X;
+            double lastY = _location.Y;
+
             _direction = GetUpdatedDirection();
             _moveDistance = pressedTimers.First(x => x.key == Keys.F20).time.TotalMilliseconds / 20;
             _location.X += _moveDistance * _direction.X;
             _location.Y += _moveDistance * _direction.Y;
+
+            if (lastX != _location.X || lastY != _location.Y)
+            {
+                var deltaX = lastX - _location.X;
+                var deltaY = lastY - _location.Y;
+
+                _rotation = Math.Atan2(-deltaX, deltaY);
+            }
 
             return true;
         }
