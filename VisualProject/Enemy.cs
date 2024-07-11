@@ -37,13 +37,12 @@ namespace VisualProject
         /// <inheritdoc/>
         public List<Polygon> GetObjectSprite()
         {
-            int size = _explosionNumber > 0 ? 3 : 5;
             _explosionNumber = Math.Min(_explosionNumber, 7);
 
             if (_explosionNumber > 0)
                 _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @$"VisualProject\VisualProject\Sprites\Explosion{_explosionNumber}.png"));
 
-            List<Polygon> result = ImageConverter.GetPolygonsFromImage(new Point((int)_location.X,(int)_location.Y), _playerSprite, size, opacity: _opacity);
+            List<Polygon> result = ImageConverter.GetPolygonsFromImage(new Point((int)_location.X,(int)_location.Y), _playerSprite, 5, opacity: _opacity);
 
             for (int i = 0; i < result.Count; i++)
                 for (int j = 0; j < result[i].Points.Count; j++)
