@@ -1,4 +1,5 @@
-﻿using VisualProject.Implementations;
+﻿using System.Drawing.Drawing2D;
+using VisualProject.Implementations;
 using VisualProject.Interfaces;
 
 namespace VisualProject
@@ -31,9 +32,11 @@ namespace VisualProject
 
         public void Update()
         {
-            if (!Objects.Any(o => o is Player))
+            CreateScreen();
+
+            if (Screen is not null)
             {
-                HandleRestartScreen();
+                HandleScreen();
 
                 return;
             }
@@ -123,16 +126,17 @@ namespace VisualProject
 
                 foreach (var(polygon, text) in screenContents)
                 {
-                    _graphics.FillPolygon(polygon.Brush, polygon.Points.ToArray());
-                    _graphics.DrawString(text.Text, text.Font, text.Brush, text.Bounds, text.StringFormat);
+                    if (polygon is not null)
+                        _graphics.FillPolygon(polygon.Brush, polygon.Points.ToArray());
+
+                    if (text is not null)
+                        _graphics.DrawString(text.Text, text.Font, text.Brush, text.Bounds, text.StringFormat);
                 }
             }
         }
 
-        private void HandleRestartScreen()
+        private void HandleScreen()
         {
-            Screen ??= new RestartScreen();
-
             Action? action = null;
 
             if (!_window!.MouseEventArgsList.Any(x => x.Button == MouseButtons.Left))
@@ -140,11 +144,27 @@ namespace VisualProject
 
             foreach (var e in _window.MouseEventArgsList)
             {
-                action ??= Screen.GetClickedButtonAction(e.Location, this);
+                action ??= Screen!.GetClickedButtonAction(e.Location, this);
             }
 
             if (action is not null)
                 action();
+        }
+
+        private void CreateScreen()
+        {
+            if (!Objects.Any(o => o is Player))
+                Screen ??= new RestartScreen();
+
+            if (_window!.PressedKeyTimers.Any(x => x.key == Keys.Escape))
+            {
+                if (Screen is not null)
+                    Screen = null;
+                else
+                    Screen ??= new PauseScreen();
+
+                return;
+            }
         }
         #endregion
     }

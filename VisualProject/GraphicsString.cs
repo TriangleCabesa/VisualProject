@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace VisualProject
+﻿namespace VisualProject
 {
     public class GraphicsString
     {
@@ -17,7 +11,7 @@ namespace VisualProject
         public GraphicsString()
         {
             Text = string.Empty;
-            Font = new("Arial", 24);
+            Font = new("Arial", 24, FontStyle.Regular);
             Brush = new SolidBrush(Color.Black);
             Bounds = new RectangleF();
             StringFormat = new();
