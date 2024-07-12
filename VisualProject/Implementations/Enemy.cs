@@ -43,8 +43,10 @@ namespace VisualProject.Implementations
             new(10, 9),
         ];
 
+        /// <inheritdoc/>
         public List<Polygon> CollisionBox { get; private set; }
 
+        /// <inheritdoc/>
         public bool IsAlive
         {
             get
@@ -56,6 +58,7 @@ namespace VisualProject.Implementations
             }
         }
 
+        /// <inheritdoc/>
         public int BodyDamage { get => _damage; }
 
         public Enemy(Rectangle spawnWindow, int damage = 1, int health = 1)
@@ -105,7 +108,7 @@ namespace VisualProject.Implementations
         {
             if (_explosionHandler is not null)
             {
-                _explosionHandler.UpdateExplosionNumber(pressedTimers);
+                _explosionHandler.UpdateExplosionSprite(pressedTimers);
 
                 return _explosionHandler.ExplosionNotComplete;
             }

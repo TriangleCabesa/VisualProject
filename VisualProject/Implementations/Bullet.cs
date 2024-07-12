@@ -14,6 +14,7 @@ namespace VisualProject.Implementations
         private int _health;
         private int _damage;
 
+        /// <inheritdoc/>
         public List<Polygon> CollisionBox { get; private set; }
 
         /// <inheritdoc/>
@@ -93,6 +94,7 @@ namespace VisualProject.Implementations
             }
         }
 
+        /// <inheritdoc/>
         public void HandleCollision(ICollidable collidable)
         {
             if (collidable.GetType() == OriginType)

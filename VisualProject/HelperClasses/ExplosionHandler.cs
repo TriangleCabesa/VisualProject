@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VisualProject.Extensions;
+﻿using VisualProject.Extensions;
 
 namespace VisualProject.HelperClasses
 {
@@ -14,6 +9,9 @@ namespace VisualProject.HelperClasses
         private TimeSpan _explosionTimer;
         private Bitmap _sprite;
 
+        /// <summary>
+        /// Is true until the explosion animation is finished.
+        /// </summary>
         public bool ExplosionNotComplete { get; private set; }
 
         public ExplosionHandler()
@@ -23,6 +21,13 @@ namespace VisualProject.HelperClasses
             _sprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @$"VisualProject\VisualProject\Sprites\Explosion{_explosionNumber}.png"));
         }
 
+        /// <summary>
+        /// Gets the sprite for the explosion.
+        /// </summary>
+        /// <param name="explosionLocation"><see cref="Point"/> at the center of the explosion.</param>
+        /// <param name="rotation">The radians to rotate the explosion sprite.</param>
+        /// <param name="explosionSize">How big to make each pixel of the sprite.</param>
+        /// <returns></returns>
         public List<Polygon> GetExplosionSprite(Point explosionLocation, double rotation, int explosionSize = 5)
         {
             List<Polygon> result = ImageReader.GetPolygonsFromImage(explosionLocation, _sprite, explosionSize);
@@ -34,7 +39,11 @@ namespace VisualProject.HelperClasses
             return result;
         }
 
-        public void UpdateExplosionNumber(List<(Keys key, TimeSpan time)> pressedTimers)
+        /// <summary>
+        /// Updates which image that's shown based on how long has passed.
+        /// </summary>
+        /// <param name="pressedTimers"></param>
+        public void UpdateExplosionSprite(List<(Keys key, TimeSpan time)> pressedTimers)
         {
             _explosionTimer += pressedTimers.First(x => x.key == Keys.F20).time;
 

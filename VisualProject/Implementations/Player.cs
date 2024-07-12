@@ -105,6 +105,7 @@ namespace VisualProject.Implementations
             }
         }
 
+        /// <inheritdoc/>
         public List<Polygon> CollisionBox { get; private set; }
         
         public Player(Rectangle? spawnWindow = null)
@@ -156,7 +157,7 @@ namespace VisualProject.Implementations
         {
             if (_explosionHandler is not null)
             {
-                _explosionHandler.UpdateExplosionNumber(pressedTimers);
+                _explosionHandler.UpdateExplosionSprite(pressedTimers);
 
                 return _explosionHandler.ExplosionNotComplete;
             }
@@ -214,6 +215,7 @@ namespace VisualProject.Implementations
         /// <inheritdoc/>
         public void DealDamage(IDamagable damagable) => damagable.TakeDamage(this);
 
+        /// <inheritdoc/>
         public void HandleCollision(ICollidable collidable)
         {
             if (collidable is Enemy enemy)

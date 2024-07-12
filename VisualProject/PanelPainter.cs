@@ -79,7 +79,7 @@ namespace VisualProject
 
         private void CheckForCollisions(int i)
         {
-            for (int j = 0; j < Objects.Count; j++)
+            for (int j = i; j < Objects.Count; j++)
             {
                 if (j == i)
                     continue;
@@ -94,7 +94,10 @@ namespace VisualProject
                     continue;
 
                 if (collidableOne.CollidesWith(collidableTwo))
+                {
                     collidableOne.HandleCollision(collidableTwo);
+                    collidableTwo.HandleCollision(collidableOne);
+                }
             }
         }
 
