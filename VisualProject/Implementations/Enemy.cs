@@ -10,13 +10,15 @@ namespace VisualProject.Implementations
         private (double X, double Y) _location;
         private (double X, double Y) _direction;
         private double _moveDistance;
-        private double _movementSpeedMultiplier;
         private double _rotation;
-        private Bitmap _playerSprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @"VisualProject\VisualProject\Sprites\EnemySprite.png"));
         private int _opacity;
-        private readonly int _damage = 1;
+        private ExplosionHandler? _explosionHandler;
+        private readonly int _damage;
+        private readonly double _movementSpeedMultiplier;
+        private readonly Bitmap _enemySprite;
+        private readonly List<Point> _hitboxPoints;
 
-        private int _health = 1;
+        private int _health;
         private int Health 
         {
             get
@@ -32,31 +34,11 @@ namespace VisualProject.Implementations
             }
         }
 
-        private ExplosionHandler? _explosionHandler;
-
-        private readonly List<Point> _hitboxPoints =
-        [
-            new(0, 9),
-            new(0, 5),
-            new(5, 0),
-            new(10, 5),
-            new(10, 9),
-        ];
-
         /// <inheritdoc/>
         public List<Polygon> CollisionBox { get; private set; }
 
         /// <inheritdoc/>
-        public bool IsAlive
-        {
-            get
-            {
-                if (Health <= 0)
-                    _explosionHandler = new();
-
-                return Health > 0;
-            }
-        }
+        public bool IsAlive { get => Health > 0; }
 
         /// <inheritdoc/>
         public int BodyDamage { get => _damage; }
@@ -64,7 +46,9 @@ namespace VisualProject.Implementations
         public Enemy(Rectangle spawnWindow, int damage = 1, int health = 1)
         {
             _damage = damage;
-            Health = health;
+            _health = health;
+            _enemySprite = new(Image.FromFile(Directory.GetCurrentDirectory().Split("VisualProject").First() + @"VisualProject\VisualProject\Sprites\EnemySprite.png"));
+            _hitboxPoints = [new(0, 9), new(0, 5), new(5, 0), new(10, 5), new(10, 9)];
             _location = GetSafeSpawnPoint(spawnWindow);
             _direction = GetUpdatedDirection();
             CollisionBox = GetCollisionBox();
@@ -87,7 +71,7 @@ namespace VisualProject.Implementations
                 return _explosionHandler.GetExplosionSprite(new Point((int)_location.X, (int)_location.Y), _rotation);
             }
 
-            List<Polygon> result = ImageReader.GetPolygonsFromImage(new Point((int)_location.X, (int)_location.Y), _playerSprite, 5, opacity: _opacity);
+            List<Polygon> result = ImageReader.GetPolygonsFromImage(new Point((int)_location.X, (int)_location.Y), _enemySprite, 5, opacity: _opacity);
 
             for (int i = 0; i < result.Count; i++)
                 for (int j = 0; j < result[i].Points.Count; j++)
@@ -96,7 +80,7 @@ namespace VisualProject.Implementations
             Polygon polygon = new();
 
             foreach (var point in _hitboxPoints)
-                polygon.Points.Add(point.GetActualPointFromTargetPoint(new Point((int)_location.X, (int)_location.Y), _playerSprite, 5, 0));
+                polygon.Points.Add(point.GetActualPointFromTargetPoint(new Point((int)_location.X, (int)_location.Y), _enemySprite, 5, 0));
 
             CollisionBox = [polygon];
 
@@ -137,6 +121,15 @@ namespace VisualProject.Implementations
         }
 
         /// <inheritdoc/>
+        public void HandleCollision(ICollidable collidable)
+        {
+            if (collidable is not Player player)
+                return;
+
+            DealDamage(player);
+        }
+
+        /// <inheritdoc/>
         public bool CollidesWith(ICollidable collidable) =>
             CollisionDetector.CollidesWith(CollisionBox, collidable.CollisionBox);
 
@@ -149,6 +142,7 @@ namespace VisualProject.Implementations
         /// <inheritdoc/>
         public void DealDamage(IDamagable damagable) => damagable.TakeDamage(this);
 
+        #region HelperMethods
         private static double GetMinimumSpawnDistance(Rectangle spawnWindow)
         {
             double maxDistance = Math.Sqrt(Math.Pow(_player!.Location.X, 2) + Math.Pow(_player.Location.Y, 2));
@@ -196,17 +190,10 @@ namespace VisualProject.Implementations
             Polygon polygon = new();
 
             foreach (var point in _hitboxPoints)
-                polygon.Points.Add(point.GetActualPointFromTargetPoint(new Point((int)_location.X, (int)_location.Y), _playerSprite, 5, 0));
+                polygon.Points.Add(point.GetActualPointFromTargetPoint(new Point((int)_location.X, (int)_location.Y), _enemySprite, 5, 0));
 
             return [polygon];
         }
-
-        public void HandleCollision(ICollidable collidable)
-        {
-            if (collidable is not Player player)
-                return;
-
-            DealDamage(player);
-        }
+        #endregion
     }
 }

@@ -49,6 +49,12 @@ namespace VisualProject.Implementations
         /// </summary>
         public double Rotation { get; set; }
 
+        /// <inheritdoc/>
+        public List<Polygon> CollisionBox { get; private set; }
+
+        /// <inheritdoc/>
+        public int BodyDamage { get => _damage; private set => _damage = value; }
+
         private Point _projectileOrigin;
         /// <summary>
         /// The location for the next projectile to spawn.
@@ -68,9 +74,6 @@ namespace VisualProject.Implementations
         }
 
         /// <inheritdoc/>
-        public int BodyDamage { get => _damage; private set => _damage = value; }
-
-        /// <inheritdoc/>
         public bool IsAlive
         {
             get
@@ -81,9 +84,6 @@ namespace VisualProject.Implementations
                 return Health > 0;
             }
         }
-
-        public int Experience { get; set; }
-        public int Level { get; set; }
 
         private bool _canFire = true;
         /// <summary>
@@ -105,9 +105,6 @@ namespace VisualProject.Implementations
             }
         }
 
-        /// <inheritdoc/>
-        public List<Polygon> CollisionBox { get; private set; }
-        
         public Player(Rectangle? spawnWindow = null)
         {
             spawnWindow ??= new Rectangle(0, 0, 800, 450);

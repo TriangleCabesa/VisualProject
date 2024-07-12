@@ -9,7 +9,7 @@ namespace VisualProject.Implementations
         // We can't use point because doubles are needed for higher accuracy.
         private (double X, double Y) _location;
         private (double X, double Y) _direction;
-        private readonly Stopwatch _stopwatch = Stopwatch.StartNew();
+        private readonly Stopwatch _stopwatch;
         private readonly TimeSpan _lifeSpan;
         private int _health;
         private int _damage;
@@ -36,6 +36,7 @@ namespace VisualProject.Implementations
         {
             _health = health;
             _damage = damage;
+            _stopwatch = Stopwatch.StartNew();
             _location.X = origin.X;
             _location.Y = origin.Y;
 
