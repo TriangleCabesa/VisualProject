@@ -28,9 +28,9 @@ namespace VisualProject
 
         public static void SetWindow(Window window) => _window = window;
 
-        public void Update(List<(Keys key, TimeSpan time)> pressedTimers)
+        public void Update()
         {
-            if (pressedTimers.Any(x => x.key == Keys.Space) && Player.CanFire)
+            if (_window!.PressedKeyTimers.Any(x => x.key == Keys.Space) && Player.CanFire)
             {
                 Objects.Add(new Bullet(Player.ProjectileOrigin, new Point(MouseLocation.X, MouseLocation.Y), TimeSpan.FromSeconds(10), typeof(Player)));
                 Player.CanFire = false;
@@ -49,7 +49,7 @@ namespace VisualProject
                 CheckForCollisions(i);
             }
 
-            Objects.RemoveAll(gameObject => !gameObject.Update(pressedTimers, Objects));
+            Objects.RemoveAll(gameObject => !gameObject.Update(_window.PressedKeyTimers, Objects));
         }
 
         private void CheckForCollisions(int i)

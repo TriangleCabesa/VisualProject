@@ -1,17 +1,17 @@
 using System.Diagnostics;
-using System.Reflection;
 using VisualProject.HelperClasses;
 
 namespace VisualProject
 {
     public partial class Window : Form
     {
-        public int frameRate = 120;
+        private bool _shootPressed = false;
+        public int FrameRate = 120;
         public bool CanPaint = true;
         bool windowOpen = true;
         PanelPainter? painter;
-        public List<(Keys key, Stopwatch timer)> keyList = [];
-        public List<(Keys key, TimeSpan time)> pressedTimers = [];
+        public List<(Keys key, Stopwatch timer)> KeyList = [];
+        public List<(Keys key, TimeSpan time)> PressedKeyTimers = [];
         Stopwatch Stopwatch = Stopwatch.StartNew();
 
         public Window()
@@ -26,7 +26,7 @@ namespace VisualProject
                 {
                     Stopwatch stopwatch = Stopwatch.StartNew();
 
-                    while (stopwatch.Elapsed < TimeSpan.FromMilliseconds(1000 / frameRate))
+                    while (stopwatch.Elapsed < TimeSpan.FromMilliseconds(1000 / FrameRate))
                         ;
 
                     CanPaint = true;
@@ -63,22 +63,25 @@ namespace VisualProject
         {
             painter ??= new PanelPainter();
 
-            foreach (var (key, stopwatch) in keyList)
-                pressedTimers.Add((key, stopwatch.Elapsed));
+            foreach (var (key, stopwatch) in KeyList)
+                PressedKeyTimers.Add((key, stopwatch.Elapsed));
 
-            for (int i = 0; i < keyList.Count; i++)
-                keyList[i] = (keyList[i].key, Stopwatch.StartNew());
+            for (int i = 0; i < KeyList.Count; i++)
+                KeyList[i] = (KeyList[i].key, Stopwatch.StartNew());
 
-            pressedTimers.Add((Keys.F20, Stopwatch.Elapsed));
+            if (!PressedKeyTimers.Any(x => x.key == Keys.Space) && _shootPressed)
+                PressedKeyTimers.Add((Keys.Space, TimeSpan.FromTicks(1)));
+
+            PressedKeyTimers.Add((Keys.F20, Stopwatch.Elapsed));
             Stopwatch.Restart();
 
-            foreach (var (key, timeSpan) in pressedTimers.Where(x => x.key == Keys.Left || x.key == Keys.Right))
+            foreach (var (key, timeSpan) in PressedKeyTimers.Where(x => x.key == Keys.Left || x.key == Keys.Right))
             {
-                frameRate += key == Keys.Right ? 1 : frameRate > 1 ? -1 : 0;
+                FrameRate += key == Keys.Right ? 1 : FrameRate > 1 ? -1 : 0;
             }
 
-            painter.Update(pressedTimers);
-            pressedTimers.Clear();
+            painter.Update();
+            PressedKeyTimers.Clear();
         }
 
         private void DoEvents()
@@ -116,16 +119,16 @@ namespace VisualProject
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            if (!keyList.Any(x => x.key == e.KeyCode))
-                keyList.Add((e.KeyCode, Stopwatch.StartNew()));
+            if (!KeyList.Any(x => x.key == e.KeyCode))
+                KeyList.Add((e.KeyCode, Stopwatch.StartNew()));
         }
 
         private void Window_KeyUp(object sender, KeyEventArgs e)
         {
-            if (keyList.Any(x => x.key == e.KeyCode))
+            if (KeyList.Any(x => x.key == e.KeyCode))
             {
-                pressedTimers.Add((e.KeyCode, keyList.First(x => x.key == e.KeyCode).timer.Elapsed));
-                keyList.RemoveAll(x => x.key == e.KeyCode);
+                PressedKeyTimers.Add((e.KeyCode, KeyList.First(x => x.key == e.KeyCode).timer.Elapsed));
+                KeyList.RemoveAll(x => x.key == e.KeyCode);
             }
         }
 
@@ -140,15 +143,15 @@ namespace VisualProject
             if (e.ScrollOrientation == ScrollOrientation.VerticalScroll)
             {
                 if (e.OldValue < e.NewValue)
-                    pressedTimers.Add((Keys.Up, TimeSpan.FromMilliseconds(2)));
+                    PressedKeyTimers.Add((Keys.Up, TimeSpan.FromMilliseconds(2)));
                 else
-                    pressedTimers.Add((Keys.Down, TimeSpan.FromMilliseconds(2)));
+                    PressedKeyTimers.Add((Keys.Down, TimeSpan.FromMilliseconds(2)));
             }
         }
 
         private void Window_MouseWheel(object sender, MouseEventArgs e)
         {
-            pressedTimers.Add((Keys.Up, TimeSpan.FromMilliseconds(e.Delta / 60)));
+            PressedKeyTimers.Add((Keys.Up, TimeSpan.FromMilliseconds(e.Delta / 60)));
         }
 
         private void Window_MouseMove(object sender, MouseEventArgs e)
@@ -160,6 +163,18 @@ namespace VisualProject
         private void Window_Load(object sender, EventArgs e)
         {
             ImageReader.PixelNotUsedCondition = color => !(color.R >= 215 && color.G >= 215 && color.B >= 215);
+        }
+
+        private void Window_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                _shootPressed = true;
+        }
+
+        private void Window_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                _shootPressed = false;
         }
     }
 }
