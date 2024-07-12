@@ -1,4 +1,6 @@
-﻿namespace VisualProject
+﻿using VisualProject.Extensions;
+
+namespace VisualProject.HelperClasses
 {
     public class CollisionDetector
     {

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VisualProject.Implementations;
 
-namespace VisualProject
+namespace VisualProject.Extensions
 {
     public static class PolygonExtensions
     {
@@ -34,8 +35,8 @@ namespace VisualProject
         public static Point Rotate(this Point point, Point centerPoint, double angle)
         {
             if (angle == 0)
-                return new Point(point.X,point.Y);
-            
+                return new Point(point.X, point.Y);
+
             return new Point((int)(centerPoint.X + (point.X - centerPoint.X) * Math.Cos(angle) - (point.Y - centerPoint.Y) * Math.Sin(angle)),
                              (int)(centerPoint.Y + (point.X - centerPoint.X) * Math.Sin(angle) + (point.Y - centerPoint.Y) * Math.Cos(angle)));
         }
@@ -112,7 +113,7 @@ namespace VisualProject
                     if (rayIntersectsPolygon)
                         result = !result;
                 }
-                
+
                 j = i;
             }
 

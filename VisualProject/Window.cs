@@ -1,22 +1,24 @@
 using System.Diagnostics;
 using System.Reflection;
+using VisualProject.HelperClasses;
 
 namespace VisualProject
 {
     public partial class Window : Form
     {
-        int frameRate = 120;
-        bool canPaint = true;
+        public int frameRate = 120;
+        public bool CanPaint = true;
         bool windowOpen = true;
         PanelPainter? painter;
-        List<(Keys key, Stopwatch timer)> keyList = [];
-        List<(Keys key, TimeSpan time)> pressedTimers = [];
+        public List<(Keys key, Stopwatch timer)> keyList = [];
+        public List<(Keys key, TimeSpan time)> pressedTimers = [];
         Stopwatch Stopwatch = Stopwatch.StartNew();
 
         public Window()
         {
             InitializeComponent();
             DoubleBuffered = true;
+            PanelPainter.SetWindow(this);
 
             Task.Run(() =>
             {
@@ -27,7 +29,7 @@ namespace VisualProject
                     while (stopwatch.Elapsed < TimeSpan.FromMilliseconds(1000 / frameRate))
                         ;
 
-                    canPaint = true;
+                    CanPaint = true;
                 }
             });
         }
@@ -35,7 +37,7 @@ namespace VisualProject
         private void Panel_Paint(object sender, PaintEventArgs e)
         {
             painter ??= new PanelPainter();
-            painter.Paint(e, canPaint);
+            painter.Paint(e);
         }
 
         private void Window_Shown(object sender, EventArgs e)
@@ -49,12 +51,12 @@ namespace VisualProject
 
         private void RefreshPanel()
         {
-            if (!canPaint)
+            if (!CanPaint)
                 return;
 
             UpdateVariables();
             Refresh();
-            canPaint = false;
+            CanPaint = false;
         }
 
         private void UpdateVariables()
@@ -81,7 +83,7 @@ namespace VisualProject
 
         private void DoEvents()
         {
-            while (!canPaint)
+            while (!CanPaint)
             {
                 Application.DoEvents();
             }
@@ -130,7 +132,7 @@ namespace VisualProject
         private void Window_Paint(object sender, PaintEventArgs e)
         {
             painter ??= new PanelPainter();
-            painter.Paint(e, canPaint);
+            painter.Paint(e);
         }
 
         private void Window_Scroll(object sender, ScrollEventArgs e)
@@ -157,7 +159,7 @@ namespace VisualProject
 
         private void Window_Load(object sender, EventArgs e)
         {
-            ImageConverter.PixelNotUsedCondition = color => !(color.R >= 215 && color.G >= 215 && color.B >= 215);
+            ImageReader.PixelNotUsedCondition = color => !(color.R >= 215 && color.G >= 215 && color.B >= 215);
         }
     }
 }

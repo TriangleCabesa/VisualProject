@@ -1,4 +1,4 @@
-﻿namespace VisualProject
+﻿namespace VisualProject.Interfaces
 {
     public interface IGameObject
     {

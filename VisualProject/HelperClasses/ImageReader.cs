@@ -1,6 +1,6 @@
-﻿namespace VisualProject
+﻿namespace VisualProject.HelperClasses
 {
-    public class ImageConverter
+    public class ImageReader
     {
         /// <summary>
         /// Predicate that <see cref="GetPolygonsFromImage(Point, Bitmap, int, Predicate{Color}?)"/> uses to remove pixels. Pixels are removed when the predicate is false.
@@ -34,8 +34,8 @@
             {
                 for (int j = 0; j < bitmap.Height; j++)
                 {
-                    int currentX = (i * scaleFactor) + startingX;
-                    int currentY = (j * scaleFactor) + startingY;
+                    int currentX = i * scaleFactor + startingX;
+                    int currentY = j * scaleFactor + startingY;
 
                     Polygon polygon = new();
                     polygon.Points.Add(new Point(currentX, currentY));
