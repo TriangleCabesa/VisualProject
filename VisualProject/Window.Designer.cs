@@ -48,6 +48,7 @@ namespace VisualProject
             Paint += Window_Paint;
             KeyDown += Window_KeyDown;
             KeyUp += Window_KeyUp;
+            MouseClick += Window_MouseClick;
             MouseDown += Window_MouseDown;
             MouseMove += Window_MouseMove;
             MouseUp += Window_MouseUp;

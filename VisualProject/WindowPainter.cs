@@ -3,18 +3,19 @@ using VisualProject.Interfaces;
 
 namespace VisualProject
 {
-    public class PanelPainter
+    public class WindowPainter
     {
         public PaintEventArgs LastPaintEvent { get; set; }
         public Point MouseLocation { get; set; }
         public List<IGameObject> Objects { get; set; }
+        public IScreen? Screen { get; set; }
         public Player Player { get; set; }
 
         private static Window? _window;
         private Bitmap _bitmap;
         private Graphics _graphics;
 
-        public PanelPainter()
+        public WindowPainter()
         {
             MouseLocation = new Point(0, 0);
             Objects = [];
@@ -30,6 +31,13 @@ namespace VisualProject
 
         public void Update()
         {
+            if (!Objects.Any(o => o is Player))
+            {
+                HandleRestartScreen();
+
+                return;
+            }
+
             AddNewEntities();
 
             for (int i = 0; i < Objects.Count; i++)
@@ -106,6 +114,37 @@ namespace VisualProject
             foreach (IGameObject gameObject in Objects)
                 foreach (Polygon polygon in gameObject.GetObjectSprite())
                     _graphics.FillPolygon(polygon.Brush, polygon.Points.ToArray());
+
+            if (Screen is not null)
+            {
+                _graphics.FillRectangle(new SolidBrush(Color.FromArgb(50, 0, 0, 0)), LastPaintEvent.ClipRectangle);
+
+                var screenContents = Screen.GetButtons(LastPaintEvent.ClipRectangle);
+
+                foreach (var(polygon, text) in screenContents)
+                {
+                    _graphics.FillPolygon(polygon.Brush, polygon.Points.ToArray());
+                    _graphics.DrawString(text.Text, text.Font, text.Brush, text.Bounds, text.StringFormat);
+                }
+            }
+        }
+
+        private void HandleRestartScreen()
+        {
+            Screen ??= new RestartScreen();
+
+            Action? action = null;
+
+            if (!_window!.MouseEventArgsList.Any(x => x.Button == MouseButtons.Left))
+                return;
+
+            foreach (var e in _window.MouseEventArgsList)
+            {
+                action ??= Screen.GetClickedButtonAction(e.Location, this);
+            }
+
+            if (action is not null)
+                action();
         }
         #endregion
     }

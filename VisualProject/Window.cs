@@ -9,16 +9,17 @@ namespace VisualProject
         public int FrameRate = 120;
         public bool CanPaint = true;
         bool windowOpen = true;
-        PanelPainter? painter;
+        WindowPainter? painter;
         public List<(Keys key, Stopwatch timer)> KeyList = [];
         public List<(Keys key, TimeSpan time)> PressedKeyTimers = [];
-        Stopwatch Stopwatch = Stopwatch.StartNew();
+        public List<MouseEventArgs> MouseEventArgsList = [];
+        readonly Stopwatch Stopwatch = Stopwatch.StartNew();
 
         public Window()
         {
             InitializeComponent();
             DoubleBuffered = true;
-            PanelPainter.SetWindow(this);
+            WindowPainter.SetWindow(this);
 
             Task.Run(() =>
             {
@@ -36,7 +37,7 @@ namespace VisualProject
 
         private void Panel_Paint(object sender, PaintEventArgs e)
         {
-            painter ??= new PanelPainter();
+            painter ??= new WindowPainter();
             painter.Paint(e);
         }
 
@@ -61,7 +62,7 @@ namespace VisualProject
 
         private void UpdateVariables()
         {
-            painter ??= new PanelPainter();
+            painter ??= new WindowPainter();
 
             foreach (var (key, stopwatch) in KeyList)
                 PressedKeyTimers.Add((key, stopwatch.Elapsed));
@@ -82,6 +83,7 @@ namespace VisualProject
 
             painter.Update();
             PressedKeyTimers.Clear();
+            MouseEventArgsList.Clear();
         }
 
         private void DoEvents()
@@ -134,7 +136,7 @@ namespace VisualProject
 
         private void Window_Paint(object sender, PaintEventArgs e)
         {
-            painter ??= new PanelPainter();
+            painter ??= new WindowPainter();
             painter.Paint(e);
         }
 
@@ -156,7 +158,7 @@ namespace VisualProject
 
         private void Window_MouseMove(object sender, MouseEventArgs e)
         {
-            painter ??= new PanelPainter();
+            painter ??= new WindowPainter();
             painter.MouseLocation = e.Location;
         }
 
@@ -175,6 +177,11 @@ namespace VisualProject
         {
             if (e.Button == MouseButtons.Left)
                 _shootPressed = false;
+        }
+
+        private void Window_MouseClick(object sender, MouseEventArgs e)
+        {
+            MouseEventArgsList.Add(e);
         }
     }
 }
