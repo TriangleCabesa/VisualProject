@@ -30,6 +30,38 @@ namespace VisualProject
 
         public void Update()
         {
+            AddNewEntities();
+
+            for (int i = 0; i < Objects.Count; i++)
+            {
+                CheckForCollisions(i);
+            }
+
+            Objects.RemoveAll(gameObject => !gameObject.Update(_window!.PressedKeyTimers, Objects));
+        }
+
+        public void Paint(PaintEventArgs paintEvent)
+        {
+            LastPaintEvent = paintEvent;
+            _bitmap ??= new Bitmap(LastPaintEvent.ClipRectangle.Width, LastPaintEvent.ClipRectangle.Height);
+
+            if (!_window!.CanPaint)
+            {
+                LastPaintEvent.Graphics.DrawImage(_bitmap, 0, 0);
+                return;
+            }
+
+            _bitmap = new Bitmap(_window.Width, _window.Height);
+            _graphics = Graphics.FromImage(_bitmap);
+            _graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+            PaintObjects();
+            
+            LastPaintEvent.Graphics.DrawImage(_bitmap, 0, 0);
+        }
+
+        #region HelperMethods
+        private void AddNewEntities()
+        {
             if (_window!.PressedKeyTimers.Any(x => x.key == Keys.Space) && Player.CanFire)
             {
                 Objects.Add(new Bullet(Player.ProjectileOrigin, new Point(MouseLocation.X, MouseLocation.Y), TimeSpan.FromSeconds(10), typeof(Player)));
@@ -38,18 +70,11 @@ namespace VisualProject
 
             if (!Objects.Any(obj => obj is Enemy))
             {
-                int max = new Random().Next(10,20);
+                int max = new Random().Next(10, 20);
 
                 for (int i = 0; i < max; i++)
                     Objects.Add(new Enemy(LastPaintEvent.ClipRectangle));
             }
-
-            for (int i = 0; i < Objects.Count; i++)
-            {
-                CheckForCollisions(i);
-            }
-
-            Objects.RemoveAll(gameObject => !gameObject.Update(_window.PressedKeyTimers, Objects));
         }
 
         private void CheckForCollisions(int i)
@@ -73,30 +98,12 @@ namespace VisualProject
             }
         }
 
-        public void Paint(PaintEventArgs paintEvent)
-        {
-            LastPaintEvent = paintEvent;
-            _bitmap ??= new Bitmap(LastPaintEvent.ClipRectangle.Width, LastPaintEvent.ClipRectangle.Height);
-
-            if (!_window!.CanPaint)
-            {
-                LastPaintEvent.Graphics.DrawImage(_bitmap, 0, 0);
-                return;
-            }
-
-            _bitmap = new Bitmap(LastPaintEvent.ClipRectangle.Width, LastPaintEvent.ClipRectangle.Height);
-            _graphics = Graphics.FromImage(_bitmap);
-            _graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
-            PaintObjects();
-            
-            LastPaintEvent.Graphics.DrawImage(_bitmap, 0, 0);
-        }
-
         private void PaintObjects()
         {
             foreach (IGameObject gameObject in Objects)
                 foreach (Polygon polygon in gameObject.GetObjectSprite())
                     _graphics.FillPolygon(polygon.Brush, polygon.Points.ToArray());
         }
+        #endregion
     }
 }
