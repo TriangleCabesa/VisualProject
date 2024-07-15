@@ -8,6 +8,7 @@ namespace VisualProject
         private bool _shootPressed = false;
         public int FrameRate = 120;
         public bool CanPaint = true;
+        public bool PauseScreenExists = false;
         bool windowOpen = true;
         WindowPainter? painter;
         public List<(Keys key, Stopwatch timer)> KeyList = [];
@@ -132,6 +133,9 @@ namespace VisualProject
                 PressedKeyTimers.Add((e.KeyCode, KeyList.First(x => x.key == e.KeyCode).timer.Elapsed));
                 KeyList.RemoveAll(x => x.key == e.KeyCode);
             }
+
+            if (e.KeyCode == Keys.Escape)
+                PauseScreenExists = !PauseScreenExists;
         }
 
         private void Window_Paint(object sender, PaintEventArgs e)

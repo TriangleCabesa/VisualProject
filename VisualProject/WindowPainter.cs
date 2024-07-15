@@ -158,7 +158,7 @@ namespace VisualProject
 
             if (_window!.PressedKeyTimers.Any(x => x.key == Keys.Escape))
             {
-                if (Screen is not null)
+                if (Screen is not null && _window.PauseScreenExists)
                     Screen = null;
                 else
                     Screen ??= new PauseScreen();
