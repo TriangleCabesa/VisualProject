@@ -29,7 +29,12 @@ namespace VisualProject.Implementations
                 Brush = Brushes.Red,
             };
 
-            return [(null, text)];
+            polygon = new();
+            polygon.Points.Add(new Point(-1, -1));
+            polygon.Points.Add(new Point(-2, -2));
+            polygon.Points.Add(new Point(-1,-2));
+
+            return [(polygon, text)];
         }
 
         public Action? GetClickedButtonAction(Point point, WindowPainter painter)
